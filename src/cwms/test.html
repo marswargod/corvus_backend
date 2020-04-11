@@ -1,0 +1,23 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css"/>
+    <script src="/static/jquery/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+{{ $pc := .PageControls }}
+<div class="container">
+    <label for="pages">Select Page:</label>
+    <select id="pages">
+        {{range .PageControls.Aisles}}
+            <option value="{{.}}">{{.}}</option>
+        {{end}}
+    </select> 
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#pages").click(function(){
+            alert(this.value); 
+        });
+    })
+</script>
+</body>

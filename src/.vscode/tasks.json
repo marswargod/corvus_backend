@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "go build",
+            "type": "shell",
+             "command": "go build -tags json1",
+           "group" : { "kind" : "build", "isDefault" : true
+           }
+        }
+    ]
+} // EOF

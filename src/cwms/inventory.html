@@ -1,0 +1,74 @@
+<head>
+<link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css"/>
+<!-- <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script> -->
+<!-- <script src="bootstrap/js/bootstrap.min.js"></script> -->
+</head>
+<div class="container">
+
+<img src="/static/images/corvus_hq_logo.png" alt="Corvus" height="10%" width="10%">
+<br>
+<a href="/dashboard" class="btn btn-primary">Dashboard</a>
+<a href="/hybrid" class="btn btn-success">Hybrid Display</a>
+
+<h1>Inventory</h1>
+<h2>Drone Data</h2>
+<table class="table table-bordered">
+    <tr>
+        <th><input type="checkbox"> Id</th>
+        <th>First Seen</th>
+        <th>Last Seen</th>
+        <th># Days</th>
+        <th>SKU</th>
+        <th>Aisle</th>
+        <th>Shelf</th>
+        <th>Slot</th>
+        <th>Discrepancy</th>
+    </tr>
+    {{range .Inventory}}
+    <tr>
+        <td><input type="checkbox"> {{.Id}}</td>
+        <td>{{.StartTime}}</td>
+        <td>{{.StopTime}}</td>
+        <td></td>
+        <td>{{.SKU}}</td>
+        <td>{{.Aisle}}</td>
+        <td>{{.Shelf}}</td>
+        <td>{{.Slot}}</td>
+        <td>{{.Discrepancy}}</td>
+    </tr>
+    {{end}}
+</table>
+
+<button type="button" class="btn btn-default">Transfer Data</button>
+<button type="button" class="btn btn-primary">Compare Data</button>
+<button type="button" class="btn btn-success">Update selected Data</button>
+<button type="button" class="btn btn-info">Insert selected Data</button>
+<button type="button" class="btn btn-danger">Insert new Data only</button>
+<h2>Warehouse Data</h2> 
+<table class="table table-bordered">
+    <tr>
+        <th><input type="checkbox"> Id</th>
+        <th>First Seen</th>
+        <th>Last Seen</th>
+        <th># Days</th>
+        <th>SKU</th>
+        <th>Aisle</th>
+        <th>Shelf</th>
+        <th>Slot</th>
+        <th>Discrepancy</th>
+    </tr>
+    {{range .Inventory}}
+    <tr>
+        <td><input type="checkbox"> {{.Id}}</td>
+        <td>{{.StartTime}}</td>
+        <td>{{.StopTime}}</td>
+        <td></td>
+        <td>{{.SKU}}</td>
+        <td>{{.Aisle}}</td>
+        <td>{{.Shelf}}</td>
+        <td>{{.Slot}}</td>
+        <td>{{.Discrepancy}}</td>
+    </tr>
+    {{end}}
+</table>
+</div>

@@ -1,0 +1,69 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css"/>
+    <script src="/static/jquery/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <img src="/static/images/corvus_hq_logo.png" alt="Corvus" height="10%" width="10%">
+    <br>
+    <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+    <h5>Report Filters:</h5>   
+    <a href="/hybrid/?aisle={{.PageControls.Curr}}&scope=" class="btn btn-primary">Aisle SKUs</a>
+    <a href="/hybrid/?aisle={{.PageControls.Curr}}&scope=issues" class="btn btn-danger">Aisle SKU with Issues</a>
+    <a href="/hybrid/?aisle=all&scope=" class="btn btn-primary">All Aisle SKUs - {{.Stats.TotalSkus}}</a>
+    <a href="/hybrid/?aisle=all&scope=issues" class="btn btn-danger">All Aisle SKUs with Issues - {{.Stats.SkuIssues}}</a>
+</div>
+<div class="container">
+    <h5>Report Actions:</h5>
+    <a href="/inventory/?aisle={{.PageControls.Selection}}&scope={{.PageControls.Scope}}" class="btn btn-success">Compare to Warehouse</a>
+    <a href="/export/csv/?aisle={{.PageControls.Selection}}&scope={{.PageControls.Scope}}" class="btn btn-success">Download CSV</a>
+    <a href="/export/json/?aisle={{.PageControls.Selection}}&scope={{.PageControls.Scope}}" class="btn btn-success">Download JSON</a>
+    <a href="/export/xml/?aisle={{.PageControls.Selection}}&scope={{.PageControls.Scope}}" class="btn btn-success">Download XML</a>
+    <button type="button" class="btn btn-success" disabled>Send email</button>
+</div>
+{{ $pc := .PageControls }}
+<div class="container">
+    <h5>Report:</h5>
+    <a href="/hybrid/?aisle={{.PageControls.Prev}}&scope={{.PageControls.Scope}}" class="btn btn-success">Prev Aisle</a>
+    <label for="aisles">Select Aisle:</label>
+    <select id="aisles">
+        {{range .PageControls.Aisles}}
+            <option value="{{.}}" {{ if eq . $pc.Curr }}selected{{ end }}>{{.}}</option>
+        {{end}}
+    </select> 
+    <a href="/hybrid/?aisle={{.PageControls.Next}}&scope={{.PageControls.Scope}}" class="btn btn-success">Next Aisle</a>
+    <table class="table table-bordered">
+        <tr>
+            <th><input type="checkbox"> Id</th>
+            <th>First Seen</th>
+            <th>Last Seen</th>
+            <th># Days</th>
+            <th>SKU</th>
+            <th>Aisle</th>
+            <th>Shelf</th>
+            <th>Slot</th>
+            <th>Discrepancy</th>
+        </tr>
+        {{range .Inventory}}
+        <tr>
+            <td><input type="checkbox"> {{.Id}}</td>
+            <td>{{.StartTime}}</td>
+            <td>{{.StopTime}}</td>
+            <td></td>
+            <td>{{.SKU}}</td>
+            <td>{{.Aisle}}</td>
+            <td>{{.Shelf}}</td>
+            <td>{{.Slot}}</td>
+            <td>{{.Discrepancy}}</td>
+        </tr>
+        {{end}}
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#aisles").change(function(){
+            window.location = "/hybrid/?aisle="+this.value+"&scope={{.PageControls.Scope}}"
+        });
+    })
+</script>
+</body>

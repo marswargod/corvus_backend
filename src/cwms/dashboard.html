@@ -1,0 +1,15 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css"/>
+    <!-- <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script> -->
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+</head>
+<div class="container">
+    <img src="/static/images/corvus_hq_logo.png" alt="Corvus" height="10%" width="10%">
+    <br> 
+    <a href="/hybrid/" class="btn btn-success">Hybrid Display</a>
+    <a href="/inventory/?aisle=all&scope=" class="btn btn-success">Inventory Comparison</a>
+
+    <h5>Report Filters:</h5>   
+    <a href="/hybrid/?aisle=all&scope=" class="btn btn-primary">All Aisle SKUs - {{.Stats.TotalSkus}}</a>
+    <a href="/hybrid/?aisle=all&scope=issues" class="btn btn-danger">All Aisle SKUs with Issues - {{.Stats.SkuIssues}}</a>
+</div>
