@@ -1,3 +1,9 @@
+// Corvus Warehouse Management System (cwms)
+// 	Provides a suite of displays that allows a user to:
+// 	• View the entire inventory
+// 	• Navigate by aisle
+// 	• Filter by discrepancies
+//	• Compare Drone Inventory to Warehouse Inventory
 package main
 
 import (
@@ -41,7 +47,7 @@ func (l LocalFileSystem) Open(name string) (f http.File, err error) {
 }
 
 // Wms is Warehouse Management System inventory database record structure that matches the fields in the v_inventory view
-// xml reflection tags are included for xml marshalling
+// 	xml reflection tags are included for xml marshalling
 type Wms struct {
 	Id          int    `xml:"id,attr"`
 	StartTime   string `xml:"time>start"`
@@ -66,7 +72,6 @@ func (wl WmsList) toSlice() (s [][]string) {
 }
 
 // FetchInventory performs a query on v_inventory and returns the results in a WmsList.
-
 func FetchInventory(pc PageControls) (wl WmsList, err error) {
 	// Execute database query
 	var rows *sql.Rows
@@ -149,6 +154,10 @@ func fetchStats() (stats Stats, err error) {
 type imwHandler func(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request)
 
 // imw inventory middleware fetches inventory, statistics, and page controls and loads them into the template map
+//	imw does "everything":
+//	• loads inventory into the template map (tm)
+//	• loads page controls into the template map
+//	• loads statistics into the template map
 func imw(next imwHandler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Fetch url parameters
@@ -206,11 +215,11 @@ func executeTemplate(f string, tm map[string]interface{}, w http.ResponseWriter)
 
 // PageControls holds page navigation and page control fields
 type PageControls struct {
-	Curr, Next, Prev string // Page Nav
-	SingleAisle      bool
-	Selection        string
-	Scope            string
-	Aisles           []string
+	Curr, Next, Prev string   // Page Nav
+	SingleAisle      bool     // Has a single aisle been selected?
+	Selection        string   // selection choice "all" or an aisle name
+	Scope            string   // filter scope: blank or "issues"
+	Aisles           []string // list of aisles
 }
 
 // toSqlStmt generates a sql statement based on the current set of page controls
