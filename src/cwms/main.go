@@ -1,4 +1,4 @@
-// Corvus Warehouse Management System (cwms)
+// 	Corvus Warehouse Management System (cwms)
 // 	Provides a suite of displays that allows a user to:
 // 	• View the entire inventory
 // 	• Navigate by aisle
@@ -62,8 +62,13 @@ type Wms struct {
 // WmsList is a slice of Wms
 type WmsList []Wms
 
-// toSlice converts a WmsList to a [][]string
+// toSlice converts a WmsList to a [][]string for use when generating csv output
+//	Hardcoded alert!! toSlice will need to be updated if v_inventory is refactored.
+//	There is a more generic approach: the rows.Columns method can be used to get the column names from the query.
+//	Of course, the column names would need to be carried in page controls or a global variable perhaps when the query
+//	is performed.
 func (wl WmsList) toSlice() (s [][]string) {
+	// Prepend the column headers
 	s = append(s, []string{"Id", "Start Time", "Stop Time", "SKU", "Aisle", "Shelf", "Slot", "Discrepancy"})
 	for _, v := range wl {
 		s = append(s, []string{strconv.Itoa(v.Id), v.StartTime, v.StopTime, v.SKU, v.Aisle, v.Shelf, v.Slot, v.Discrepancy})
@@ -289,9 +294,11 @@ func pageNav(curr string, al []string) (pc PageControls) {
 	return
 }
 
-// == Main routine
-
-// main opens the database and sets up the http server
+// main
+// 	• opens the database
+// 	• sets up the mutex
+// 	• sets up the http handlers
+// 	• listens and serves
 func main() {
 	// Setup logger
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -319,6 +326,7 @@ func main() {
 	mux.HandleFunc("/hybrid/", imw(handleHybrid))
 	mux.HandleFunc("/export/csv/", imw(handleExportInventoryCsv))
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
+	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
 
 	// Listen and serve mux
@@ -365,6 +373,14 @@ func handleExportInventoryJson(tm map[string]interface{}, wl WmsList, w http.Res
 	}
 }
 
+// handleExportInventory downloads the inventory to a JSON file
+func handleApiInventoryJson(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
+	err := jsonApi(w, wl)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 // handleExportInventoryXml downloads the inventory to an XML file
 func handleExportInventoryXml(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
 	err := xmlDownload(w, "inventory_xml.txt", wl)
@@ -392,6 +408,18 @@ func csvDownload(w http.ResponseWriter, filename string, data [][]string) (err e
 func jsonDownload(w http.ResponseWriter, filename string, data WmsList) (err error) {
 	w.Header().Set("Content-Type", "text")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s", filename))
+	writer := json.NewEncoder(w)
+
+	for _, value := range data {
+		if err = writer.Encode(value); err != nil {
+			return
+		}
+	}
+	return
+}
+
+// jsonDownload downloads the inventory to a json file via the web browser
+func jsonApi(w http.ResponseWriter, data WmsList) (err error) {
 	writer := json.NewEncoder(w)
 
 	for _, value := range data {
