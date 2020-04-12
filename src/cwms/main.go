@@ -373,7 +373,7 @@ func handleExportInventoryJson(tm map[string]interface{}, wl WmsList, w http.Res
 	}
 }
 
-// handleExportInventory downloads the inventory to a JSON file
+// handleApiInventoryJson transfers the inventory via a restful api in a json format
 func handleApiInventoryJson(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
 	err := jsonApi(w, wl)
 	if err != nil {
@@ -418,7 +418,7 @@ func jsonDownload(w http.ResponseWriter, filename string, data WmsList) (err err
 	return
 }
 
-// jsonDownload downloads the inventory to a json file via the web browser
+// jsonApi implements a simple restful api to transfer inventory in a json format
 func jsonApi(w http.ResponseWriter, data WmsList) (err error) {
 	writer := json.NewEncoder(w)
 
