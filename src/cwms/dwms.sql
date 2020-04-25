@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS inventory (
 -- https://www.sqlite.org/lang_datefunc.html
 -- https://www.sqlite.org/draft/datatype3.html
 
+DROP VIEW IF EXISTS v_inventory;
 CREATE VIEW v_inventory
 AS
 SELECT
@@ -47,3 +48,43 @@ FROM
   inventory
   LEFT JOIN positions USING(positionId)
   LEFT JOIN items USING(itemId);
+
+DROP TABLE IF EXISTS regions;
+CREATE TABLE IF NOT EXISTS regions (
+  regionId INTEGER PRIMARY KEY AUTOINCREMENT,
+  name string,
+  frequency int
+);
+  
+DROP TABLE IF EXISTS regionPositions;
+CREATE TABLE IF NOT EXISTS regionPositions (
+  rpId INTEGER PRIMARY KEY AUTOINCREMENT,
+  name string,
+  regionId INTEGER REFERENCES regions(regionId),
+  positionId INTEGER REFERENCES positions(positionId)
+);
+
+DROP TABLE IF EXISTS events;
+CREATE TABLE IF NOT EXISTS events (
+  eventId INTEGER PRIMARY KEY AUTOINCREMENT,
+  name string,
+  entry int,
+  regionId INTEGER REFERENCES regions(regionId)
+);
+
+DROP VIEW IF EXISTS v_schedule;
+CREATE VIEW v_schedule
+AS
+SELECT
+  entry as entry,
+  regions.name as region,
+  regions.frequency as frequency,
+  json_extract(positions.json_position, "$.aisle") AS aisle,
+  json_extract(positions.json_position, "$.block") AS block,
+  json_extract(positions.json_position, "$.slot") AS slot
+FROM
+  events
+  LEFT JOIN regions USING(regionId)
+  LEFT JOIN regionPositions USING(regionId)
+  LEFT JOIN positions USING(positionId);
+  

@@ -1,0 +1,66 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css"/>
+    <script src="/static/jquery/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <img src="/static/images/corvus_hq_logo.png" alt="Corvus" height="10%" width="10%">
+    <br>
+    <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+    <h5>Drone Status:</h5>   
+    <label for="droneStatus">State:</label>
+    <input type="text" id="droneStatus" value="{{.MissionControls.CurrentStatus}} ({{.MissionControls.BatteryLevel}})" size="15" readonly></input>
+    <label for="timeUntilNextFlight">Next Flight:</label>
+    <input type="text" id="timeUntilNextFlight" value="01:45 PM ({{.MissionControls.TimeUntilNextFlight}})" size="20" readonly></input>
+    <h5>Warehouse Status:</h5>   
+    <label for="lastCompleteInventory">Last Complete Inventory Cycle:</label>
+    <input type="text" id="lastCompleteInventory" value="{{.MissionControls.LastCompleteInventory}}" size="15" readonly></input>
+    <label for="aveInvCycle">Current Inventory Cycle:</label>
+    <input type="text" id="aveInvCycle" value="Day 15 / ({{.MissionControls.AveDaysToCompleteCycle}} cycle)" size="25" readonly></input>
+    <h5>Queue Filters:</h5>
+    <a href="/schedule/?day={{.MissionControls.Curr}}&scope=" class="btn btn-primary">Specific Region</a>
+    <a href="/schedule/?day=all&scope=" class="btn btn-primary">All Regions</a>
+</div>
+<div class="container">
+    <h5>Queue Actions:</h5>
+    <a href="/mexport/csv/?day={{.MissionControls.Selection}}&scope={{.MissionControls.Scope}}" class="btn btn-success">Move Region to top of queue</a>
+    <button type="button" class="btn btn-success" disabled>Send email</button>
+</div>
+{{ $mc := .MissionControls }}
+<div class="container">
+    <h5>Queue:</h5>
+    <a href="/schedule/?day={{.MissionControls.Prev}}&scope={{.MissionControls.Scope}}" class="btn btn-success">Prev Region</a>
+    <label for="days">Select Region:</label>
+    <select id="days">
+        {{range .MissionControls.Days}}
+            <option value="{{.}}" {{ if eq . $mc.Curr }}selected{{ end }}>{{.}}</option>
+        {{end}}
+    </select> 
+    <a href="/schedule/?day={{.MissionControls.Next}}&scope={{.MissionControls.Scope}}" class="btn btn-success">Next Region</a>
+    <table class="table table-bordered">
+        <tr>
+            <th>Entry</th>
+            <th>Region</th>
+            <th>Frequency</th>
+            <th>Start Aisle</th>
+            <th>End Aisle</th>
+        </tr>
+        {{range .Missions}}
+        <tr>
+            <td>{{.Entry}}</td>
+            <td>{{.Region}}</td>
+            <td>{{.Frequency}}</td>
+            <td>{{.StartAisle}}</td>
+            <td>{{.EndAisle}}</td>
+        </tr>
+        {{end}}
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#days").change(function(){
+            window.location = "/schedule/?page="+this.value+"&scope={{.MissionControls.Scope}}"
+        });
+    })
+</script>
+</body>

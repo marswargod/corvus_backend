@@ -62,4 +62,64 @@ insert into inventory (startTime, stopTime, itemId, positionId) values ("2020-04
 insert into inventory (startTime, stopTime, itemId, positionId) values ("2020-04-04 19:22:45.007", "2020-04-04 19:22:45.007", 11, 24);
 insert into inventory (startTime, stopTime, itemId, positionId) values ("2020-04-04 19:22:45.007", "2020-04-04 19:22:45.007", 12, 23);
 
+insert into regions (name, frequency) values ("region1", 3);
+insert into regions (name, frequency) values ("region2", 1);
+insert into regions (name, frequency) values ("region3", 1);
+insert into regions (name, frequency) values ("region4", 1);
+insert into regions (name, frequency) values ("region5", 1);
+insert into regions (name, frequency) values ("region6", 1);
+insert into regions (name, frequency) values ("region7", 1);
+insert into regions (name, frequency) values ("region8", 1);
+insert into regions (name, frequency) values ("region9", 1);
+insert into regions (name, frequency) values ("region10", 1);
+insert into regions (name, frequency) values ("region11", 1);
+insert into regions (name, frequency) values ("region12", 1);
 
+insert into regionPositions (regionId, positionId) values (1,1);
+insert into regionPositions (regionId, positionId) values (1,2);
+insert into regionPositions (regionId, positionId) values (1,3);
+insert into regionPositions (regionId, positionId) values (1,4);
+insert into regionPositions (regionId, positionId) values (1,5);
+insert into regionPositions (regionId, positionId) values (1,6);
+
+insert into regionPositions (regionId, positionId) values (2,7);
+insert into regionPositions (regionId, positionId) values (2,8);
+insert into regionPositions (regionId, positionId) values (2,9);
+insert into regionPositions (regionId, positionId) values (2,10);
+insert into regionPositions (regionId, positionId) values (2,11);
+insert into regionPositions (regionId, positionId) values (2,12);
+
+insert into regionPositions (regionId, positionId) values (3,13);
+insert into regionPositions (regionId, positionId) values (3,14);
+insert into regionPositions (regionId, positionId) values (3,15);
+insert into regionPositions (regionId, positionId) values (3,16);
+insert into regionPositions (regionId, positionId) values (3,17);
+insert into regionPositions (regionId, positionId) values (3,18);
+insert into regionPositions (regionId, positionId) values (3,19);
+insert into regionPositions (regionId, positionId) values (3,20);
+insert into regionPositions (regionId, positionId) values (3,21);
+
+insert into regionPositions (regionId, positionId) values (4,22);
+insert into regionPositions (regionId, positionId) values (4,23);
+insert into regionPositions (regionId, positionId) values (4,24);
+insert into regionPositions (regionId, positionId) values (4,25);
+insert into regionPositions (regionId, positionId) values (4,26);
+insert into regionPositions (regionId, positionId) values (4,27);
+insert into regionPositions (regionId, positionId) values (4,28);
+insert into regionPositions (regionId, positionId) values (4,29);
+insert into regionPositions (regionId, positionId) values (4,30);
+
+insert into events (name, entry, regionId) values ("event1",  1, 1);
+insert into events (name, entry, regionId) values ("event2",  2, 2);
+insert into events (name, entry, regionId) values ("event3",  3, 3);
+insert into events (name, entry, regionId) values ("event4",  4, 4);
+insert into events (name, entry, regionId) values ("event5",  5, 1);
+insert into events (name, entry, regionId) values ("event6",  6, 5);
+insert into events (name, entry, regionId) values ("event7",  7, 6);
+insert into events (name, entry, regionId) values ("event8",  8, 7);
+insert into events (name, entry, regionId) values ("event9",  9, 8);
+insert into events (name, entry, regionId) values ("event10", 10, 1);
+insert into events (name, entry, regionId) values ("event11", 11, 9);
+insert into events (name, entry, regionId) values ("event12", 12, 10);
+insert into events (name, entry, regionId) values ("event13", 13, 11);
+insert into events (name, entry, regionId) values ("event14", 14, 12);
