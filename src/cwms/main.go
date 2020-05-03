@@ -13,6 +13,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -622,7 +623,7 @@ func jsonDownload(w http.ResponseWriter, filename string, data WmsList) (err err
 	return
 }
 
-// jsonApi implements a simple restful api to transfer inventory in a json format
+// jsonApi implements a simple restful api to export inventory in a json format
 func jsonApi(w http.ResponseWriter, data WmsList) (err error) {
 	writer := json.NewEncoder(w)
 
@@ -632,6 +633,32 @@ func jsonApi(w http.ResponseWriter, data WmsList) (err error) {
 		}
 	}
 	return
+}
+
+type Pick struct {
+	SKU   string `json:"sku"`
+	Aisle string `json:"aisle"`
+	Shelf string `json:"shelf"`
+	Slot  string `json:"slot"`
+}
+
+// external api struct
+type WMSActions struct {
+	Picks []Pick
+}
+
+// jsonExternalApi implements a simple api to import warehouse actions (pick lists and put lists) in a json format
+func jsonExternalApi(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+	}
+	var wmsa WMSActions
+	err = json.Unmarshal(body, &wmsa)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(wmsa)
 }
 
 // csvExport exports the inventory to a local csv file

@@ -72,13 +72,28 @@ CREATE TABLE IF NOT EXISTS events (
   regionId INTEGER REFERENCES regions(regionId)
 );
 
+DROP TABLE IF EXISTS restrictions;
+CREATE TABLE IF NOT EXISTS restrictions (
+  restrictionId INTEGER PRIMARY KEY AUTOINCREMENT,
+  name string,
+  startTime DATETIME,
+  stopTime  DATETIME,
+  periodicity string,
+  regionId INTEGER REFERENCES regions(regionId),
+  CHECK (periodicity IN ('weekdays','weekends','everyday','monday','tuesday','wednesday','thursday','friday','saturday','sunday'))
+);
+
 DROP VIEW IF EXISTS v_schedule;
 CREATE VIEW v_schedule
 AS
 SELECT
-  entry as entry,
-  regions.name as region,
-  regions.frequency as frequency,
+  entry AS entry,
+  regions.name AS region,
+  regions.frequency AS frequency,
+  restriction.name AS restriction,
+  restriction.startTime AS startTime,
+  restriction.stopTime AS stopTime,
+  restriction.periodicity AS periodicity,
   json_extract(positions.json_position, "$.aisle") AS aisle,
   json_extract(positions.json_position, "$.block") AS block,
   json_extract(positions.json_position, "$.slot") AS slot
@@ -86,5 +101,6 @@ FROM
   events
   LEFT JOIN regions USING(regionId)
   LEFT JOIN regionPositions USING(regionId)
+  LEFT JOIN restrictions USING(regionId)
   LEFT JOIN positions USING(positionId);
   
