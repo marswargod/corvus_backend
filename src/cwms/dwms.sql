@@ -68,6 +68,7 @@ DROP TABLE IF EXISTS events;
 CREATE TABLE IF NOT EXISTS events (
   eventId INTEGER PRIMARY KEY AUTOINCREMENT,
   name string,
+  queue TEXT,
   entry int,
   regionId INTEGER REFERENCES regions(regionId)
 );
@@ -79,8 +80,8 @@ CREATE TABLE IF NOT EXISTS restrictions (
   startTime DATETIME,
   stopTime  DATETIME,
   periodicity string,
-  regionId INTEGER REFERENCES regions(regionId),
-  CHECK (periodicity IN ('weekdays','weekends','everyday','monday','tuesday','wednesday','thursday','friday','saturday','sunday'))
+  regionId INTEGER REFERENCES regions(regionId)
+  -- CHECK (periodicity IN ('weekdays','weekends','everyday','monday','tuesday','wednesday','thursday','friday','saturday','sunday'))
 );
 
 DROP VIEW IF EXISTS v_schedule;
@@ -88,6 +89,7 @@ CREATE VIEW v_schedule
 AS
 SELECT
   entry AS entry,
+  queue AS queue,
   regions.name AS region,
   regions.frequency AS frequency,
   restriction.name AS restriction,
