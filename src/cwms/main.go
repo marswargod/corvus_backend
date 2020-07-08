@@ -525,6 +525,7 @@ func main() {
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
 	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
+	mux.HandleFunc("/api/", handleJsonApiRequest)
 
 	// Listen and serve mux
 	http.ListenAndServe(":8080", mux)
@@ -586,6 +587,14 @@ func handleApiInventoryJson(tm map[string]interface{}, wl WmsList, w http.Respon
 	}
 }
 
+// // handleApiRequestJson interprets a json request
+// func handleApiRequestJson(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
+// 	err := jsonExternalApi(w, r)
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
+// }
+
 // handleExportInventoryXml downloads the inventory to an XML file
 func handleExportInventoryXml(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
 	err := xmlDownload(w, "inventory_xml.txt", wl)
@@ -613,24 +622,16 @@ func csvDownload(w http.ResponseWriter, filename string, data [][]string) (err e
 func jsonDownload(w http.ResponseWriter, filename string, data WmsList) (err error) {
 	w.Header().Set("Content-Type", "text")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s", filename))
-	writer := json.NewEncoder(w)
-
-	for _, value := range data {
-		if err = writer.Encode(value); err != nil {
-			return
-		}
+	if err = json.NewEncoder(w).Encode(data); err != nil {
+		log.Println(err)
 	}
 	return
 }
 
 // jsonApi implements a simple restful api to export inventory in a json format
 func jsonApi(w http.ResponseWriter, data WmsList) (err error) {
-	writer := json.NewEncoder(w)
-
-	for _, value := range data {
-		if err = writer.Encode(value); err != nil {
-			return
-		}
+	if err = json.NewEncoder(w).Encode(data); err != nil {
+		log.Println(err)
 	}
 	return
 }
@@ -648,17 +649,18 @@ type WMSActions struct {
 }
 
 // jsonExternalApi implements a simple api to import warehouse actions (pick lists and put lists) in a json format
-func jsonExternalApi(w http.ResponseWriter, r *http.Request) {
+func handleJsonApiRequest(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
 	}
-	var wmsa WMSActions
-	err = json.Unmarshal(body, &wmsa)
+	var wmsl WmsList
+	err = json.Unmarshal(body, &wmsl)
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(wmsa)
+	log.Println(wmsl)
+	return
 }
 
 // csvExport exports the inventory to a local csv file
