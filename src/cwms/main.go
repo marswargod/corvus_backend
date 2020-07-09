@@ -175,10 +175,10 @@ func (wl WmsList) toSlice() (s [][]string) {
 }
 
 // FetchInventory performs a query on v_inventory and returns the results in a WmsList.
-func FetchInventory(pc PageControls) (wl WmsList, err error) {
+func FetchInventory(af AisleFilter) (wl WmsList, err error) {
 	// Execute database query
 	var rows *sql.Rows
-	rows, err = db.Query(pc.toSqlStmt())
+	rows, err = db.Query(af.toSqlStmt())
 
 	if err != nil {
 		return
@@ -310,7 +310,7 @@ func imw(next imwHandler) http.HandlerFunc {
 		}
 
 		// Fetch inventory based on page controls
-		wl, err := FetchInventory(pc)
+		wl, err := FetchInventory(pc.toAisleFilter())
 		if err != nil {
 			log.Println(err)
 		}
@@ -353,6 +353,33 @@ func executeTemplate(f string, tm map[string]interface{}, w http.ResponseWriter)
 	return
 }
 
+// AisleFilter holds Aisle filter information
+// Aisle and Discrepancy filters a cumulative
+type AisleFilter struct {
+	Aisle       string // Filter on Aisle
+	Discrepancy string // Filter on Discrepancies
+}
+
+// toSqlStmt generates a sql statement based on the current set of page controls
+func (af AisleFilter) toSqlStmt() (sqlstmt string) {
+	var sel, order string
+	var where []string
+	sel = `select inventoryId, startTime, stopTime, sku, aisle, block, slot, discrepancy from v_inventory `
+	if af.Aisle != "" {
+		where = append(where, fmt.Sprintf(`aisle ='%s'`, af.Aisle))
+	}
+	if af.Discrepancy != "" {
+		where = append(where, `discrepancy !="" `)
+	}
+	order = `order by aisle, block, slot`
+	if len(where) > 0 {
+		sqlstmt = fmt.Sprintf("%s where %s %s", sel, strings.Join(where, " and "), order)
+	} else {
+		sqlstmt = fmt.Sprintf("%s %s", sel, order)
+	}
+	return
+}
+
 // PageControls holds page navigation and page control fields
 type PageControls struct {
 	Curr, Next, Prev string   // Page Nav
@@ -377,22 +404,12 @@ type MissionControls struct {
 	AveDaysToCompleteCycle string   //
 }
 
-// toSqlStmt generates a sql statement based on the current set of page controls
-func (pc PageControls) toSqlStmt() (sqlstmt string) {
-	var sel, order string
-	var where []string
-	sel = `select inventoryId, startTime, stopTime, sku, aisle, block, slot, discrepancy from v_inventory `
+func (pc PageControls) toAisleFilter() (af AisleFilter) {
 	if pc.SingleAisle {
-		where = append(where, fmt.Sprintf(`aisle ='%s'`, pc.Curr))
+		af.Aisle = pc.Curr
 	}
 	if pc.Scope != "" {
-		where = append(where, `discrepancy !="" `)
-	}
-	order = `order by aisle, block, slot`
-	if len(where) > 0 {
-		sqlstmt = fmt.Sprintf("%s where %s %s", sel, strings.Join(where, " and "), order)
-	} else {
-		sqlstmt = fmt.Sprintf("%s %s", sel, order)
+		af.Discrepancy = "yes"
 	}
 	return
 }
@@ -525,7 +542,8 @@ func main() {
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
 	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
-	mux.HandleFunc("/api/", handleJsonApiRequest)
+	mux.HandleFunc("/api/", handleJsonApiRequest) // handleApiAisles
+	mux.HandleFunc("/api/aisles/", handleApiAisles)
 
 	// Listen and serve mux
 	http.ListenAndServe(":8080", mux)
@@ -629,7 +647,7 @@ func jsonDownload(w http.ResponseWriter, filename string, data WmsList) (err err
 }
 
 // jsonApi implements a simple restful api to export inventory in a json format
-func jsonApi(w http.ResponseWriter, data WmsList) (err error) {
+func jsonApi(w http.ResponseWriter, data interface{}) (err error) { 
 	if err = json.NewEncoder(w).Encode(data); err != nil {
 		log.Println(err)
 	}
@@ -646,6 +664,31 @@ type Pick struct {
 // external api struct
 type WMSActions struct {
 	Picks []Pick
+}
+
+func handleApiAisles(w http.ResponseWriter, r *http.Request) {
+	// Fetch inventory based on page controls
+	var af AisleFilter
+
+	// Get segment list from request, set aisle filter if the last segment is a specific aisle
+	sl := strings.Split(r.URL.Path, "/")
+	if len(sl) > 0 {
+		ls := sl[len(sl)-1]
+		if ls != "aisle" {
+			af.Aisle = ls
+		}
+	}
+
+	// Fetch inventory filtered by aisle filter
+	wl, err := FetchInventory(af)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Send filter inventory in json response
+	if err = jsonApi(w, wl); err != nil {
+		log.Println(err)
+	}
 }
 
 // jsonExternalApi implements a simple api to import warehouse actions (pick lists and put lists) in a json format
