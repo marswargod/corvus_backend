@@ -368,8 +368,10 @@ func (af AisleFilter) toSqlStmt() (sqlstmt string) {
 	if af.Aisle != "" {
 		where = append(where, fmt.Sprintf(`aisle ='%s'`, af.Aisle))
 	}
-	if af.Discrepancy != "" {
+	if af.Discrepancy == "all" {
 		where = append(where, `discrepancy !="" `)
+	} else if af.Discrepancy != "" {
+		where = append(where, fmt.Sprintf(`discrepancy ='%s'`, af.Discrepancy))
 	}
 	order = `order by aisle, block, slot`
 	if len(where) > 0 {
@@ -377,6 +379,7 @@ func (af AisleFilter) toSqlStmt() (sqlstmt string) {
 	} else {
 		sqlstmt = fmt.Sprintf("%s %s", sel, order)
 	}
+	log.Println(af, sqlstmt)
 	return
 }
 
@@ -409,7 +412,7 @@ func (pc PageControls) toAisleFilter() (af AisleFilter) {
 		af.Aisle = pc.Curr
 	}
 	if pc.Scope != "" {
-		af.Discrepancy = "yes"
+		af.Discrepancy = "all"
 	}
 	return
 }
@@ -544,6 +547,7 @@ func main() {
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
 	mux.HandleFunc("/api/", handleJsonApiRequest) // handleApiAisles
 	mux.HandleFunc("/api/aisles/", handleApiAisles)
+	mux.HandleFunc("/api/discrepancies/", handleApiDiscrepancies)
 
 	// Listen and serve mux
 	http.ListenAndServe(":8080", mux)
@@ -647,7 +651,7 @@ func jsonDownload(w http.ResponseWriter, filename string, data WmsList) (err err
 }
 
 // jsonApi implements a simple restful api to export inventory in a json format
-func jsonApi(w http.ResponseWriter, data interface{}) (err error) { 
+func jsonApi(w http.ResponseWriter, data interface{}) (err error) {
 	if err = json.NewEncoder(w).Encode(data); err != nil {
 		log.Println(err)
 	}
@@ -674,10 +678,39 @@ func handleApiAisles(w http.ResponseWriter, r *http.Request) {
 	sl := strings.Split(r.URL.Path, "/")
 	if len(sl) > 0 {
 		ls := sl[len(sl)-1]
-		if ls != "aisle" {
+		if ls != "" {
 			af.Aisle = ls
 		}
 	}
+
+	// Fetch inventory filtered by aisle filter
+	wl, err := FetchInventory(af)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Send filter inventory in json response
+	if err = jsonApi(w, wl); err != nil {
+		log.Println(err)
+	}
+}
+
+func handleApiDiscrepancies(w http.ResponseWriter, r *http.Request) {
+	// Fetch inventory based on page controls
+	var af AisleFilter
+
+	af.Discrepancy = "all"
+
+	// Get segment list from request, set discrepancy filter if the last segment is a specific aisle
+	sl := strings.Split(r.URL.Path, "/")
+	if len(sl) > 0 {
+		ls := sl[len(sl)-1]
+		log.Println(ls)
+		if ls != "" {
+			af.Discrepancy = ls
+		}
+	}
+	log.Println("af:", af, " sl:", sl)
 
 	// Fetch inventory filtered by aisle filter
 	wl, err := FetchInventory(af)
