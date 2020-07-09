@@ -379,7 +379,6 @@ func (af AisleFilter) toSqlStmt() (sqlstmt string) {
 	} else {
 		sqlstmt = fmt.Sprintf("%s %s", sel, order)
 	}
-	log.Println(af, sqlstmt)
 	return
 }
 
