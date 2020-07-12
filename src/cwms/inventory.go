@@ -147,15 +147,6 @@ func jsonDownload(w http.ResponseWriter, filename string, data WmsList) (err err
 	return
 }
 
-// jsonApi implements a simple restful api to export inventory in a json format
-func jsonApi(w http.ResponseWriter, data interface{}) (err error) {
-	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(data); err != nil {
-		log.Println(err)
-	}
-	return
-}
-
 // handleJsonApiRequest implements a simple api to read a wms list in a json format
 func handleJsonApiRequest(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)

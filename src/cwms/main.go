@@ -8,6 +8,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -107,11 +108,20 @@ func main() {
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
 	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
-	mux.HandleFunc("/api/", handleJsonApiRequest) // handleApiAisles
+	mux.HandleFunc("/api/", handleJsonApiRequest)
 	mux.HandleFunc("/api/aisles/", handleApiAisles)
 	mux.HandleFunc("/api/discrepancies/", handleApiDiscrepancies)
 	mux.HandleFunc("/api/restrictions/", handleApiRestrictions)
 
 	// Listen and serve mux
 	http.ListenAndServe(":8080", mux)
+}
+
+// jsonApi implements a simple restful api to export inventory in a json format
+func jsonApi(w http.ResponseWriter, data interface{}) (err error) {
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(data); err != nil {
+		log.Println(err)
+	}
+	return
 }
