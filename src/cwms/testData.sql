@@ -123,3 +123,9 @@ insert into events (name, entry, regionId) values ("event11", 11, 9);
 insert into events (name, entry, regionId) values ("event12", 12, 10);
 insert into events (name, entry, regionId) values ("event13", 13, 11);
 insert into events (name, entry, regionId) values ("event14", 14, 12);
+
+insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("causeway", "10:00", "13:00", "daily", 1);
+insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("crossroads", "10:00", "13:00", "daily", 2);
+insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("footpath", "10:00", "13:00", "daily", 3);
+insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("area57", "10:00", "13:00", "daily", 4);
+insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("breezeway", "10:00", "13:00", "daily", 5);
