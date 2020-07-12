@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-// restriction
+// restriction definition matches database table
+// xml and json reflection tags determine how the restrictions appear the response
 type Restriction struct {
 	Id          int    `xml:"id,attr" json:"id"`
 	Name        string `xml:"name,attr" json:"name"`
@@ -65,6 +66,12 @@ func FetchRestrictions(rf RestrictionFilter) (rl RestrictionList, err error) {
 	return
 }
 
+// handleApiRestrictions is the endpoint for restrictions restful api
+// accepts:
+//  /restrictions
+//	/restrictions/:name
+// Sets restrictions filter based on name and writes a json response with
+// a list of restrictions.
 func handleApiRestrictions(w http.ResponseWriter, r *http.Request) {
 	// Fetch restrictions based on filter
 	var rf RestrictionFilter
