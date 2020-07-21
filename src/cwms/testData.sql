@@ -140,3 +140,6 @@ insert into flightPositions (flightId, positionId, sku, occupancy) values (1, 3,
 insert into flightPositions (flightId, positionId, sku, occupancy) values (2, 4, "000SKU008", "13.1");
 insert into flightPositions (flightId, positionId, sku, occupancy) values (2, 5, "000SKU009", "13.2");
 insert into flightPositions (flightId, positionId, sku, occupancy) values (2, 6, "000SKU010", "13.3");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (3, 7, "000SKU011", "14.1");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (3, 8, "000SKU012", "14.2");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (3, 9, "000SKU013", "14.3");
