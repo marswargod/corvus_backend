@@ -105,4 +105,36 @@ FROM
   LEFT JOIN regionPositions USING(regionId)
   LEFT JOIN restrictions USING(regionId)
   LEFT JOIN positions USING(positionId);
+
+  DROP TABLE IF EXISTS flights;
+  CREATE TABLE IF NOT EXISTS flights (
+    flightId  INTEGER PRIMARY KEY AUTOINCREMENT,
+    time DATETIME
+  );
+
+  DROP TABLE IF EXISTS flightPositions;
+  CREATE TABLE IF NOT EXISTS flightPositions (
+    fpId  INTEGER PRIMARY KEY AUTOINCREMENT,
+    sku text,
+    occupancy text,
+    flightId INTEGER REFERENCES flights(flightId),
+    positionId INTEGER REFERENCES positions(positionId)
+  );
+
+DROP VIEW IF EXISTS v_flightList;
+CREATE VIEW v_flightList
+AS
+SELECT
+  flightId AS flightId,
+  time AS time,
+  flightPositions.sku AS sku,
+  flightPositions.occupancy AS occupancy,
+  json_extract(positions.json_position, "$.aisle") AS aisle,
+  json_extract(positions.json_position, "$.block") AS shelf,
+  json_extract(positions.json_position, "$.slot") AS slot
+FROM
+  flights
+  LEFT JOIN flightPositions USING(flightId)  
+  LEFT JOIN positions USING(positionId);
+
   

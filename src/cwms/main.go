@@ -106,18 +106,20 @@ func main() {
 	mux.HandleFunc("/schedule/", mmw(handleSchedule))
 	mux.HandleFunc("/export/csv/", imw(handleExportInventoryCsv))
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
-	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
+	// restful api handlers
 	mux.HandleFunc("/api/", handleJsonApiRequest)
+	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
 	mux.HandleFunc("/api/aisles/", handleApiAisles)
 	mux.HandleFunc("/api/discrepancies/", handleApiDiscrepancies)
 	mux.HandleFunc("/api/restrictions/", handleApiRestrictions)
+	mux.HandleFunc("/api/flights/", handleApiFlights)
 
 	// Listen and serve mux
 	http.ListenAndServe(":8080", mux)
 }
 
-// jsonApi implements a simple restful api to export inventory in a json format
+// jsonApi implements a simple restful api to export data in a json format
 func jsonApi(w http.ResponseWriter, data interface{}) (err error) {
 	w.Header().Set("Content-Type", "application/json")
 	if err = json.NewEncoder(w).Encode(data); err != nil {

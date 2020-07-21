@@ -12,14 +12,14 @@ import (
 // Wms is Warehouse Management System inventory database record structure that matches the fields in the v_inventory view
 // 	xml reflection tags are included for xml marshalling
 type Wms struct {
-	Id          int    `xml:"id,attr"`
-	StartTime   string `xml:"time>start"`
-	StopTime    string `xml:"time>stop"`
-	SKU         string `xml:"item>SKU"`
-	Discrepancy string `xml:"item>Discrepancy,omitempty"`
-	Aisle       string `xml:"position>Aisle"`
-	Shelf       string `xml:"position>Shelf"`
-	Slot        string `xml:"position>Slot"`
+	Id          int    `xml:"id,attr" json:"id"`
+	StartTime   string `xml:"time>start" json:"startTime"`
+	StopTime    string `xml:"time>stop" json:"stopTime"`
+	SKU         string `xml:"item>SKU" json:"sku"`
+	Discrepancy string `xml:"item>Discrepancy,omitempty" json:"discrepancy"`
+	Aisle       string `xml:"position>Aisle" json:"aisle"`
+	Shelf       string `xml:"position>Shelf" json:"shelf"`
+	Slot        string `xml:"position>Slot" json:"slot"`
 }
 
 // WmsList is a slice of Wms

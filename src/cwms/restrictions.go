@@ -13,8 +13,8 @@ import (
 type Restriction struct {
 	Id          int    `xml:"id,attr" json:"id"`
 	Name        string `xml:"name,attr" json:"name"`
-	StartTime   string `xml:"time>start" json:"start time"`
-	StopTime    string `xml:"time>stop" json:"stop time"`
+	StartTime   string `xml:"time>start" json:"startTime"`
+	StopTime    string `xml:"time>stop" json:"stopTime"`
 	Periodicity string `xml:"periodicity" json:"periodicity"`
 	Region      int    `xml:"region" json:"region"`
 }

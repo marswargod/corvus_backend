@@ -129,3 +129,14 @@ insert into restrictions (name, startTime, stopTime, periodicity, regionId) valu
 insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("footpath", "10:00", "13:00", "daily", 3);
 insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("area57", "10:00", "13:00", "daily", 4);
 insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("breezeway", "10:00", "13:00", "daily", 5);
+
+insert into flights (time) values ("10:00");
+insert into flights (time) values ("10:01");
+insert into flights (time) values ("10:02");
+
+insert into flightPositions (flightId, positionId, sku, occupancy) values (1, 1, "000SKU005", "12.1");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (1, 2, "000SKU006", "12.2");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (1, 3, "000SKU007", "12.3");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (2, 4, "000SKU008", "13.1");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (2, 5, "000SKU009", "13.2");
+insert into flightPositions (flightId, positionId, sku, occupancy) values (2, 6, "000SKU010", "13.3");
