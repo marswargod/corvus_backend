@@ -126,7 +126,7 @@ CREATE VIEW v_flightList
 AS
 SELECT
   flightId AS flightId,
-  time AS time,
+  time(time) AS time,
   flightPositions.sku AS sku,
   flightPositions.occupancy AS occupancy,
   json_extract(positions.json_position, "$.aisle") AS aisle,

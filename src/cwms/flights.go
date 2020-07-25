@@ -12,8 +12,8 @@ import (
 type flight struct {
 	FlightId  int    `json:"id" db:"flightId"`
 	Time      string `json:"time" db:"time"`
-	Sku       string `json:"sku" db:"flightId"`
-	Occupancy string `json:"occupancy" db:"sku"`
+	Sku       string `json:"sku" db:"sku"`
+	Occupancy string `json:"occupancy" db:"occupancy"`
 	Aisle     string `json:"aisle" db:"aisle"`
 	Shelf     string `json:"shelf" db:"shelf"`
 	Slot      string `json:"slot" db:"slot"`
@@ -36,11 +36,23 @@ func (f flight) toPlaceholderList() (phl []string) {
 	return
 }
 
-func (f flight) toInterfaceList() (ifaceList []interface{}) {
+func (f flight) toInterfaceList() (il []interface{}) {
 	v := reflect.ValueOf(f)
 	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		ifaceList = append(ifaceList, field.Interface())
+		il = append(il, v.Field(i).Interface())
+	}
+	return
+}
+
+func convertInterfaceListToFlight(il []interface{}) (f flight) {
+	v := reflect.ValueOf(&f).Elem()
+	for i := 1; i < v.NumField(); i++ {
+		switch il[i].(type) {
+		case int64:
+			v.Field(i).SetInt(il[i].(int64))
+		case string:
+			v.Field(i).SetString(il[i].(string))
+		}
 	}
 	return
 }
@@ -76,7 +88,7 @@ func (ff flightFilter) toSqlSelect() (sqlstmt string) {
 			where = append(where, fmt.Sprintf(`sku LIKE '%%%s%%'`, ff.Sku))
 		}
 		if ff.Before != "" {
-			where = append(where, fmt.Sprintf(`sku LIKE '%%%s%%'`, ff.Sku))
+			where = append(where, fmt.Sprintf(`before LIKE '%%%s%%'`, ff.Sku))
 		}
 		if ff.After != "" {
 			where = append(where, fmt.Sprintf(`sku LIKE '%%%s%%'`, ff.Sku))
@@ -128,21 +140,32 @@ func (ff flightFilter) toSqlSelect() (sqlstmt string) {
 func FetchFlights(ff flightFilter) (fl flightList, err error) {
 	// Execute database query
 	var rows *sql.Rows
-	rows, err = db.Query(ff.toSqlSelect())
-
-	if err != nil {
+	if rows, err = db.Query(ff.toSqlSelect()); err != nil {
 		return
 	}
 	defer rows.Close()
 
-	// Process database query results
-	var record flight
+	// get number of fields for a flight from reflect
+	var f flight
+	numCols := reflect.TypeOf(f).NumField()
+
+	// Process query results
 	for rows.Next() {
-		err = rows.Scan(&record.FlightId, &record.Time, &record.Sku, &record.Occupancy, &record.Aisle, &record.Shelf, &record.Slot)
-		if err != nil {
+
+		// Create interface list and set pointers to interface list
+		cols := make([]interface{}, numCols)
+		ptrs := make([]interface{}, numCols)
+		for i := 0; i < numCols; i++ {
+			ptrs[i] = &cols[i]
+		}
+
+		// Load query results into interface list via the pointers
+		if err = rows.Scan(ptrs...); err != nil {
 			return
 		}
-		fl = append(fl, record)
+
+		// append query results to flight list
+		fl = append(fl, convertInterfaceListToFlight(cols))
 	}
 	return
 }
