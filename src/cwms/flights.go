@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -46,12 +47,14 @@ func (f flight) toInterfaceList() (il []interface{}) {
 
 func convertInterfaceListToFlight(il []interface{}) (f flight) {
 	v := reflect.ValueOf(&f).Elem()
-	for i := 1; i < v.NumField(); i++ {
+	for i := 0; i < v.NumField(); i++ {
 		switch il[i].(type) {
 		case int64:
 			v.Field(i).SetInt(il[i].(int64))
 		case string:
 			v.Field(i).SetString(il[i].(string))
+		default:
+			log.Println("default")
 		}
 	}
 	return
@@ -91,10 +94,10 @@ func (ff flightFilter) toSqlSelect() (sqlstmt string) {
 			where = append(where, fmt.Sprintf(`before LIKE '%%%s%%'`, ff.Sku))
 		}
 		if ff.After != "" {
-			where = append(where, fmt.Sprintf(`sku LIKE '%%%s%%'`, ff.Sku))
+			where = append(where, fmt.Sprintf(`after LIKE '%%%s%%'`, ff.Sku))
 		}
 		if ff.Aisle != "" {
-			where = append(where, fmt.Sprintf(`sku LIKE '%%%s%%'`, ff.Sku))
+			where = append(where, fmt.Sprintf(`aisle LIKE '%%%s%%'`, ff.Sku))
 		}
 	}
 
@@ -174,12 +177,12 @@ func handleApiFlights(w http.ResponseWriter, r *http.Request) {
 	// Fetch inventory based on page controls
 	var ff flightFilter
 
-	// Get segment list from request, set aisle filter if the last segment is a specific aisle
+	// Get segment list from request, set flight filter if the last segment is a flight aisle
 	sl := strings.Split(r.URL.Path, "/")
 	if len(sl) > 0 {
 		ls := sl[len(sl)-1]
 		if ls != "" {
-			ff.Sku = ls
+			ff.FlightId, _ = strconv.Atoi(ls)
 		}
 	}
 
