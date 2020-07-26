@@ -25,7 +25,7 @@ func handleApiStatistics(w http.ResponseWriter, r *http.Request) {
 	// Fetch Statistics
 	if s, err := FetchStatistics(); err != nil {
 		log.Println(err)
-	} else if err = jsonApi(w, s); err != nil {
+	} else if err = jsonApi(w, r, s); err != nil {
 		log.Println(err)
 	}
 }

@@ -299,7 +299,7 @@ func handleApiFlights(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send filter inventory in json response
-	if err := jsonApi(w, wl); err != nil {
+	if err := jsonApi(w, r, wl); err != nil {
 		log.Println(err)
 	}
 	} else {
@@ -311,7 +311,7 @@ func handleApiFlights(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send filter inventory in json response
-	if err := jsonApi(w, wl); err != nil {
+	if err := jsonApi(w, r, wl); err != nil {
 		log.Println(err)
 	}
 }

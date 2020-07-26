@@ -124,8 +124,23 @@ func main() {
 }
 
 // jsonApi implements a simple restful api to export data in a json format
-func jsonApi(w http.ResponseWriter, data interface{}) (err error) {
+func jsonApi(w http.ResponseWriter, r *http.Request, data interface{}) (err error) {
+	// set content type in header
 	w.Header().Set("Content-Type", "application/json")
+
+	// set appropriate response code based on client request method
+	switch r.Method {
+	case http.MethodGet:
+		w.WriteHeader(http.StatusOK)
+	case http.MethodDelete:
+		w.WriteHeader(http.StatusAccepted)
+	case http.MethodPost:
+		w.WriteHeader(http.StatusCreated)
+	case http.MethodPatch:
+		w.WriteHeader(http.StatusCreated)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 	if err = json.NewEncoder(w).Encode(data); err != nil {
 		log.Println(err)
 	}

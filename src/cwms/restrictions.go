@@ -56,8 +56,8 @@ func (rf RestrictionFilter) toSqlStmt() (sqlstmt string) {
 func FetchRegionAisles(region int) (al []string) {
 	var rows *sql.Rows
 	var err error
-	rows, err = db.Query("select distinct aisle from v_regionPosition where regionId=?",region)
-	
+	rows, err = db.Query("select distinct aisle from v_regionPosition where regionId=?", region)
+
 	if err != nil {
 		log.Println(err)
 		return
@@ -66,7 +66,7 @@ func FetchRegionAisles(region int) (al []string) {
 
 	// Process database query results
 	var aisle string
-	for rows.Next() {	
+	for rows.Next() {
 		if err = rows.Scan(&aisle); err != nil {
 			return
 		}
@@ -139,7 +139,7 @@ func handleApiRestrictions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send filtered restriction list in json response
-	if err = jsonApi(w, rl); err != nil {
+	if err = jsonApi(w, r, rl); err != nil {
 		log.Println(err)
 	}
 }

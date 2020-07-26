@@ -182,7 +182,7 @@ func handleApiQueue(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 			}
 
-			if err = jsonApi(w, q); err != nil {
+			if err = jsonApi(w, r, q); err != nil {
 				log.Println(err)
 			}
 
@@ -193,7 +193,7 @@ func handleApiQueue(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// Send filter inventory in json response
-			if err = jsonApi(w, ql); err != nil {
+			if err = jsonApi(w, r, ql); err != nil {
 				log.Println(err)
 			}
 		}
@@ -236,7 +236,7 @@ func handleApiCustomQueue(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 			}
 
-			if err = jsonApi(w, q); err != nil {
+			if err = jsonApi(w, r, q); err != nil {
 				log.Println(err)
 			}
 
@@ -247,7 +247,7 @@ func handleApiCustomQueue(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// Send filter inventory in json response
-			if err = jsonApi(w, ql); err != nil {
+			if err = jsonApi(w, r, ql); err != nil {
 				log.Println(err)
 			}
 		}

@@ -132,7 +132,7 @@ func handleApiAisles(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		// Send filtered inventory in json response
-		if err = jsonApi(w, asl); err != nil {
+		if err = jsonApi(w, r, asl); err != nil {
 			log.Println(err)
 		}
 	} else {
@@ -142,7 +142,7 @@ func handleApiAisles(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		// Send filtered inventory in json response
-		if err = jsonApi(w, wl); err != nil {
+		if err = jsonApi(w, r, wl); err != nil {
 			log.Println(err)
 		}
 	}
@@ -171,7 +171,7 @@ func handleApiDiscrepancies(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send filter inventory in json response
-	if err = jsonApi(w, wl); err != nil {
+	if err = jsonApi(w, r, wl); err != nil {
 		log.Println(err)
 	}
 }
