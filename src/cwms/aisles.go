@@ -146,7 +146,6 @@ func handleApiAisles(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 	}
-
 }
 
 func handleApiDiscrepancies(w http.ResponseWriter, r *http.Request) {

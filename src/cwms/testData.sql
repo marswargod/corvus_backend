@@ -107,7 +107,7 @@ insert into regionPositions (regionId, positionId) values (4,26);
 insert into regionPositions (regionId, positionId) values (4,27);
 insert into regionPositions (regionId, positionId) values (4,28);
 insert into regionPositions (regionId, positionId) values (4,29);
-insert into regionPositions (regionId, positionId) values (4,30);
+insert into regionPositions (regionId, positionId) values (5,30);
 
 insert into events (name, entry, regionId) values ("event1",  1, 1);
 insert into events (name, entry, regionId) values ("event2",  2, 2);
@@ -124,11 +124,11 @@ insert into events (name, entry, regionId) values ("event12", 12, 10);
 insert into events (name, entry, regionId) values ("event13", 13, 11);
 insert into events (name, entry, regionId) values ("event14", 14, 12);
 
-insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("causeway", "10:00", "13:00", "daily", 1);
-insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("crossroads", "10:00", "13:00", "daily", 2);
-insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("footpath", "10:00", "13:00", "daily", 3);
-insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("area57", "10:00", "13:00", "daily", 4);
-insert into restrictions (name, startTime, stopTime, periodicity, regionId) values ("breezeway", "10:00", "13:00", "daily", 5);
+insert into restrictions (name, startDate, stopDate, startTime, stopTime, periodicityNum, periodicity, regionId) values ("causeway", "2020-04-04", "2020-04-05", "10:00", "13:00", 1, "daily", 1);
+insert into restrictions (name, startDate, stopDate, startTime, stopTime, periodicityNum, periodicity, regionId) values ("crossroads", "2020-04-04", "2020-04-05", "10:00", "13:00", 2, "daily", 2);
+insert into restrictions (name, startDate, stopDate, startTime, stopTime, periodicityNum, periodicity, regionId) values ("footpath", "2020-04-04", "2020-04-05", "10:00", "13:00", 1, "daily", 3);
+insert into restrictions (name, startDate, stopDate, startTime, stopTime, periodicityNum, periodicity, regionId) values ("area57", "2020-04-04", "2020-04-05", "10:00", "13:00", 3, "daily", 4);
+insert into restrictions (name, startDate, stopDate, startTime, stopTime, periodicityNum, periodicity, regionId) values ("breezeway", "2020-04-04", "2020-04-05", "10:00", "13:00", 2, "daily", 5);
 
 insert into flights (time) values ("10:00");
 insert into flights (time) values ("10:01");

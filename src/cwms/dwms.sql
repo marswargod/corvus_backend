@@ -76,11 +76,23 @@ CREATE TABLE IF NOT EXISTS regionPositions (
   positionId INTEGER REFERENCES positions(positionId)
 );
 
+DROP VIEW IF EXISTS v_regionPosition;
+CREATE VIEW IF NOT EXISTS v_regionPosition
+AS
+SELECT
+  regionId AS regionId,
+  json_extract(positions.json_position, "$.aisle") AS aisle
+FROM 
+  regions
+  LEFT JOIN regionPositions USING(regionId)
+  LEFT JOIN positions USING(positionId);
+
+
 DROP TABLE IF EXISTS events;
 CREATE TABLE IF NOT EXISTS events (
   eventId INTEGER PRIMARY KEY AUTOINCREMENT,
   name string,
-  queue TEXT,
+  queue string,
   entry int,
   regionId INTEGER REFERENCES regions(regionId)
 );
@@ -89,15 +101,32 @@ DROP TABLE IF EXISTS restrictions;
 CREATE TABLE IF NOT EXISTS restrictions (
   restrictionId INTEGER PRIMARY KEY AUTOINCREMENT,
   name string,
+  startDate DATETIME,
+  stopDate  DATETIME,
   startTime DATETIME,
   stopTime  DATETIME,
+  periodicityNum int,
   periodicity string,
   regionId INTEGER REFERENCES regions(regionId)
   -- CHECK (periodicity IN ('weekdays','weekends','everyday','monday','tuesday','wednesday','thursday','friday','saturday','sunday'))
 );
 
+DROP VIEW IF EXISTS v_restrictions;
+CREATE VIEW IF NOT EXISTS v_restrictions
+AS
+SELECT
+  restrictionId AS restrictionId,
+  startDate DATETIME,
+  stopDate  DATETIME,
+  json_extract(positions.json_position, "$.aisle") AS aisle
+FROM 
+  restrictions
+  LEFT JOIN regions USING(regionId)
+  LEFT JOIN regionPositions USING(regionId)
+  LEFT JOIN positions USING(positionId);
+
 DROP VIEW IF EXISTS v_schedule;
-CREATE VIEW v_schedule
+CREATE VIEW IF NOT EXISTS v_schedule
 AS
 SELECT
   entry AS entry,

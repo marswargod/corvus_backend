@@ -108,10 +108,10 @@ func main() {
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
 	// restful api handlers
-	mux.HandleFunc("/api/", handleJsonApiRequest)
+	mux.Handle("/api/", http.NotFoundHandler())
 	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
 	mux.HandleFunc("/api/aisles/", handleApiAisles)
-	mux.HandleFunc("/api/discrepancies/", handleApiDiscrepancies)
+	mux.HandleFunc("/api/discrepancy/", handleApiDiscrepancies)
 	mux.HandleFunc("/api/restrictions/", handleApiRestrictions)
 	mux.HandleFunc("/api/flights/", handleApiFlights)
 	mux.HandleFunc("/api/statistics/", handleApiStatistics)

@@ -5,24 +5,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
 // restriction definition matches database table
 // xml and json reflection tags determine how the restrictions appear the response
 type Restriction struct {
-	Id          int    `xml:"id,attr" json:"id"`
-	Name        string `xml:"name,attr" json:"name"`
-	StartTime   string `xml:"time>start" json:"startTime"`
-	StopTime    string `xml:"time>stop" json:"stopTime"`
-	Periodicity string `xml:"periodicity" json:"periodicity"`
-	Region      int    `xml:"region" json:"region"`
+	Id             int      `xml:"id,attr" json:"id"`
+	Aisles         []string `json:"region"`
+	Name           string   `xml:"name,attr" json:"-"`
+	StartDate      string   `xml:"date>start" json:"startDate"`
+	StopDate       string   `xml:"date>stop" json:"stopDate"`
+	StartTime      string   `xml:"time>start" json:"startTime"`
+	StopTime       string   `xml:"time>stop" json:"stopTime"`
+	EnabledDays    []bool   `json:"enabledDays"`
+	PeriodicityNum int      `xml:"periodicityNum" json:"periodicityNum"`
+	Periodicity    string   `xml:"periodicity" json:"periodicity"`
+	Region         int      `xml:"region" json:"-"`
 }
 type RestrictionList []Restriction
 
 // RestrictionFilter holds Restriction filter information
 // Restriction and tbd filters a cumulative
 type RestrictionFilter struct {
+	Id   int    // Filter on id
 	Name string // Filter on name
 }
 
@@ -30,9 +37,12 @@ type RestrictionFilter struct {
 func (rf RestrictionFilter) toSqlStmt() (sqlstmt string) {
 	var sel, order string
 	var where []string
-	sel = `select restrictionId, name, startTime, stopTime, periodicity, regionId from restrictions `
+	sel = `select restrictionId, name, startDate, stopDate, startTime, stopTime, periodicityNum, periodicity, regionId from restrictions `
 	if rf.Name != "" {
 		where = append(where, fmt.Sprintf(`name ='%s'`, rf.Name))
+	}
+	if rf.Id != 0 {
+		where = append(where, fmt.Sprintf(`restrictionId = %v`, rf.Id))
 	}
 	order = `order by regionId`
 	if len(where) > 0 {
@@ -40,6 +50,33 @@ func (rf RestrictionFilter) toSqlStmt() (sqlstmt string) {
 	} else {
 		sqlstmt = fmt.Sprintf("%s %s", sel, order)
 	}
+	return
+}
+
+func FetchRegionAisles(region int) (al []string) {
+	var rows *sql.Rows
+	var err error
+	rows, err = db.Query("select distinct aisle from v_regionPosition where regionId=?",region)
+	
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer rows.Close()
+
+	// Process database query results
+	var aisle string
+	for rows.Next() {	
+		if err = rows.Scan(&aisle); err != nil {
+			return
+		}
+		al = append(al, aisle)
+	}
+	return
+}
+
+func FetchEnabledDays(region int) (edl []bool) {
+	edl = []bool{true, false, false, false, false, false, true}
 	return
 }
 
@@ -57,10 +94,20 @@ func FetchRestrictions(rf RestrictionFilter) (rl RestrictionList, err error) {
 	// Process database query results
 	var record Restriction
 	for rows.Next() {
-		err = rows.Scan(&record.Id, &record.Name, &record.StartTime, &record.StopTime, &record.Periodicity, &record.Region)
+		err = rows.Scan(&record.Id,
+			&record.Name,
+			&record.StartDate,
+			&record.StopDate,
+			&record.StartTime,
+			&record.StopTime,
+			&record.PeriodicityNum,
+			&record.Periodicity,
+			&record.Region)
 		if err != nil {
 			return
 		}
+		record.Aisles = FetchRegionAisles(record.Id)
+		record.EnabledDays = FetchEnabledDays(record.Id)
 		rl = append(rl, record)
 	}
 	return
@@ -81,7 +128,7 @@ func handleApiRestrictions(w http.ResponseWriter, r *http.Request) {
 	if len(sl) > 0 {
 		ls := sl[len(sl)-1]
 		if ls != "" {
-			rf.Name = ls
+			rf.Id, _ = strconv.Atoi(ls)
 		}
 	}
 
