@@ -40,7 +40,7 @@ SELECT
   startTime,
   stopTime,
   items.sku AS sku,
-  json_extract(positions.json_position, "$.aisle") AS aisle,
+  json_extract(positions.json_position, "$.aisle") AS aisl e,
   json_extract(positions.json_position, "$.block") AS block,
   json_extract(positions.json_position, "$.slot") AS slot,
   items.discrepancy AS discrepancy
@@ -48,6 +48,18 @@ FROM
   inventory
   LEFT JOIN positions USING(positionId)
   LEFT JOIN items USING(itemId);
+
+  DROP VIEW IF EXISTS v_aisleStats;
+  CREATE VIEW IF NOT EXISTS v_aisleStats
+  AS SELECT
+    aisle,
+    sum(case when discrepancy != "" then 1 else 0 end) as numberException,
+    sum(case when sku = "empty" then 1 else 0 end) as numberEmpty,
+    sum(case when sku != "empty" then 1 else 0 end) as numberOccupied
+  FROM
+    v_inventory
+  GROUP BY
+    aisle;
 
 DROP TABLE IF EXISTS regions;
 CREATE TABLE IF NOT EXISTS regions (

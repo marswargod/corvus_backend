@@ -126,16 +126,27 @@ func handleApiAisles(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Fetch inventory filtered by aisle filter
-	wl, err := FetchInventory(af)
-	if err != nil {
-		log.Println(err)
+	if af.Aisle == "" {
+		asl, err := fetchAisleStats()
+		if err != nil {
+			log.Println(err)
+		}
+		// Send filtered inventory in json response
+		if err = jsonApi(w, asl); err != nil {
+			log.Println(err)
+		}
+	} else {
+		// Fetch inventory filtered by aisle filter
+		wl, err := FetchInventory(af)
+		if err != nil {
+			log.Println(err)
+		}
+		// Send filtered inventory in json response
+		if err = jsonApi(w, wl); err != nil {
+			log.Println(err)
+		}
 	}
 
-	// Send filter inventory in json response
-	if err = jsonApi(w, wl); err != nil {
-		log.Println(err)
-	}
 }
 
 func handleApiDiscrepancies(w http.ResponseWriter, r *http.Request) {
@@ -164,4 +175,28 @@ func handleApiDiscrepancies(w http.ResponseWriter, r *http.Request) {
 	if err = jsonApi(w, wl); err != nil {
 		log.Println(err)
 	}
+}
+
+type aisleStats struct {
+	Id              string `db:"aisle" json:"id"`
+	NumberOccupied  int    `db:"numberOccupied" json:"numberOccupied"`
+	NumberEmpty     int    `db:"numberEmpty" json:"numberEmpty"`
+	NumberException int    `db:"numberException" json:"numberException"`
+	NumberUnscanned int    `db:"numberUnscanned" json:"numberUnscanned"`
+	LastScanned     string `db:"lastScanned" json:"lastScanned"`
+}
+
+type aisleStatsList []aisleStats
+
+func fetchAisleStats() (asl aisleStatsList, err error) {
+	as := aisleStats{Id: "1a", NumberOccupied: 10, NumberEmpty: 5, NumberException: 6, NumberUnscanned: 1, LastScanned: "2020-04-04T19:22:45.004Z"}
+	al := []string{"1a", "1b", "1c", "2a", "2b", "2c", "3a", "3b", "3c", "4a"}
+	for i := 0; i < 10; i++ {
+		as.Id = al[i]
+		as.NumberOccupied += i
+		as.NumberEmpty += i
+		as.NumberException += i
+		asl = append(asl, as)
+	}
+	return
 }
