@@ -115,6 +115,9 @@ func main() {
 	mux.HandleFunc("/api/restrictions/", handleApiRestrictions)
 	mux.HandleFunc("/api/flights/", handleApiFlights)
 	mux.HandleFunc("/api/statistics/", handleApiStatistics)
+	mux.HandleFunc("/api/queue/", handleApiQueue)
+	mux.HandleFunc("/api/schedule/", handleApiQueue)
+	mux.HandleFunc("/api/custom_flights/", handleApiCustomQueue)
 
 	// Listen and serve mux
 	http.ListenAndServe(":8080", mux)

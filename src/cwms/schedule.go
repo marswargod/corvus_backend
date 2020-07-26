@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type Mms struct {
@@ -138,4 +140,116 @@ func fetchDays(filter string) (dayList []string, err error) {
 		dayList = append(dayList, day)
 	}
 	return
+}
+
+type Queue struct {
+	Id            int      `json:"id"`
+	Aisles        []string `json:"region"`
+	StartTime     string   `json:"startTime"`
+	StopTime      string   `json:"stopTimeEstimate"`
+	LastCompleted string   `json:"lastCompleted"`
+	Frequency     int      `json:"frequency"`
+}
+type QueueList []Queue
+
+func FetchQueue(id int) (q Queue, err error) {
+	q = Queue{Id: id,
+		Aisles:        []string{"1a", "1b"},
+		StartTime:     "0001-01-01T00:00:00Z",
+		StopTime:      "0001-01-01T00:00:00Z",
+		LastCompleted: "0001-01-01T00:00:00Z",
+		Frequency:     1}
+	return
+}
+
+func FetchQueueList() (ql QueueList, err error) {
+	for i := 1; i < 11; i++ {
+		q, _ := FetchQueue(i)
+		ql = append(ql, q)
+	}
+	return
+}
+
+func handleApiQueue(w http.ResponseWriter, r *http.Request) {
+	// Get segment list from request, set discrepancy filter if the last segment is a specific aisle
+	sl := strings.Split(r.URL.Path, "/")
+	if len(sl) > 0 {
+		ls := sl[len(sl)-1]
+		if ls != "" {
+			id, _ := strconv.Atoi(ls)
+			q, err := FetchQueue(id)
+			if err != nil {
+				log.Println(err)
+			}
+
+			if err = jsonApi(w, q); err != nil {
+				log.Println(err)
+			}
+
+		} else {
+			ql, err := FetchQueueList()
+			if err != nil {
+				log.Println(err)
+			}
+
+			// Send filter inventory in json response
+			if err = jsonApi(w, ql); err != nil {
+				log.Println(err)
+			}
+		}
+	}
+}
+
+type CustomQueue struct {
+	Id        int      `json:"id"`
+	Aisles    []string `json:"region"`
+	StartTime string   `json:"startTime"`
+	StopTime  string   `json:"stopTime"`
+}
+type CustomQueueList []CustomQueue
+
+func FetchCustomQueue(id int) (q CustomQueue, err error) {
+	q = CustomQueue{Id: id,
+		Aisles:    []string{"1a", "1b"},
+		StartTime: "0001-01-01T00:00:00Z",
+		StopTime:  "0001-01-01T00:00:00Z"}
+	return
+}
+
+func FetchCustomQueueList() (ql CustomQueueList, err error) {
+	for i := 1; i < 11; i++ {
+		q, _ := FetchCustomQueue(i)
+		ql = append(ql, q)
+	}
+	return
+}
+
+func handleApiCustomQueue(w http.ResponseWriter, r *http.Request) {
+	// Get segment list from request, set discrepancy filter if the last segment is a specific aisle
+	sl := strings.Split(r.URL.Path, "/")
+	if len(sl) > 0 {
+		ls := sl[len(sl)-1]
+		if ls != "" {
+			id, _ := strconv.Atoi(ls)
+			q, err := FetchCustomQueue(id)
+			if err != nil {
+				log.Println(err)
+			}
+
+			if err = jsonApi(w, q); err != nil {
+				log.Println(err)
+			}
+
+		} else {
+			ql, err := FetchCustomQueueList()
+			if err != nil {
+				log.Println(err)
+			}
+
+			// Send filter inventory in json response
+			if err = jsonApi(w, ql); err != nil {
+				log.Println(err)
+			}
+		}
+	}
 }
