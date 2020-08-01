@@ -83,7 +83,8 @@ func amw(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Add("Vary", "Access-Control-Request-Headers")
 			w.Header().Add("Access-Control-Allow-Origin", "*")
 			w.Header().Add("Access-Control-Allow-Methods", "POST, OPTIONS, GET, DELETE, PUT, PATCH")
-			w.Header().Add("Access-Control-Allow-Headers", "content-type, Origin, Accept, token")
+			// w.Header().Add("Access-Control-Allow-Headers", "content-type, Origin, Accept, token")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 			// w.Header().Add("Access-Control-Max-Age", "86400")
 			w.WriteHeader(http.StatusOK)
 		} else {
@@ -148,7 +149,8 @@ func jsonApi(w http.ResponseWriter, r *http.Request, data interface{}, implement
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Add("Vary", "Origin")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-
+	w.Header().Add("Access-Control-Allow-Methods", "POST, OPTIONS, GET, DELETE, PUT, PATCH")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
 	// set appropriate response code based on client request method
 	if implemented {
