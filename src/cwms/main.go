@@ -73,6 +73,25 @@ func executeTemplate(f string, tm map[string]interface{}, w http.ResponseWriter)
 	return
 }
 
+// amw is the api middleware handler that handles OPTIONS
+func amw(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "OPTIONS" {
+			// w.Header().Add("Connection", "keep-alive")
+			w.Header().Add("Vary", "Origin")
+			w.Header().Add("Vary", "Access-Control-Request-Method")
+			w.Header().Add("Vary", "Access-Control-Request-Headers")
+			w.Header().Add("Access-Control-Allow-Origin", "*")
+			w.Header().Add("Access-Control-Allow-Methods", "POST, OPTIONS, GET, DELETE, PUT, PATCH")
+			w.Header().Add("Access-Control-Allow-Headers", "content-type, Origin, Accept, token")
+			// w.Header().Add("Access-Control-Max-Age", "86400")
+			w.WriteHeader(http.StatusOK)
+		} else {
+			next(w, r)
+		}
+	}
+}
+
 // main
 // 	• opens the database
 // 	• sets up the mutex
@@ -110,36 +129,43 @@ func main() {
 	// restful api handlers
 	mux.Handle("/api/", http.NotFoundHandler())
 	mux.HandleFunc("/api/json/", imw(handleApiInventoryJson))
-	mux.HandleFunc("/api/aisles/", handleApiAisles)
-	mux.HandleFunc("/api/discrepancy/", handleApiDiscrepancies)
-	mux.HandleFunc("/api/restrictions/", handleApiRestrictions)
-	mux.HandleFunc("/api/flights/", handleApiFlights)
-	mux.HandleFunc("/api/statistics/", handleApiStatistics)
-	mux.HandleFunc("/api/queue/", handleApiQueue)
-	mux.HandleFunc("/api/schedule/", handleApiQueue)
-	mux.HandleFunc("/api/custom_flights/", handleApiCustomQueue)
+	mux.HandleFunc("/api/aisles/", amw(handleApiAisles))
+	mux.HandleFunc("/api/discrepancy/", amw(handleApiDiscrepancies))
+	mux.HandleFunc("/api/restrictions/", amw(handleApiRestrictions))
+	mux.HandleFunc("/api/flights/", amw(handleApiFlights))
+	mux.HandleFunc("/api/statistics/", amw(handleApiStatistics))
+	mux.HandleFunc("/api/queue/", amw(handleApiQueue))
+	mux.HandleFunc("/api/schedule/", amw(handleApiQueue))
+	mux.HandleFunc("/api/custom_flights/", amw(handleApiCustomQueue))
 
 	// Listen and serve mux
 	http.ListenAndServe(":8080", mux)
 }
 
 // jsonApi implements a simple restful api to export data in a json format
-func jsonApi(w http.ResponseWriter, r *http.Request, data interface{}) (err error) {
+func jsonApi(w http.ResponseWriter, r *http.Request, data interface{}, implemented bool) (err error) {
 	// set content type in header
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Vary", "Origin")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
 
 	// set appropriate response code based on client request method
-	switch r.Method {
-	case http.MethodGet:
-		w.WriteHeader(http.StatusOK)
-	case http.MethodDelete:
-		w.WriteHeader(http.StatusAccepted)
-	case http.MethodPost:
-		w.WriteHeader(http.StatusCreated)
-	case http.MethodPatch:
-		w.WriteHeader(http.StatusCreated)
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+	if implemented {
+		switch r.Method {
+		case http.MethodGet:
+			w.WriteHeader(http.StatusOK)
+		case http.MethodDelete:
+			w.WriteHeader(http.StatusAccepted)
+		case http.MethodPost:
+			w.WriteHeader(http.StatusCreated)
+		case http.MethodPatch:
+			w.WriteHeader(http.StatusCreated)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	} else {
+		w.WriteHeader(http.StatusNotImplemented)
 	}
 	if err = json.NewEncoder(w).Encode(data); err != nil {
 		log.Println(err)

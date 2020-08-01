@@ -139,7 +139,7 @@ func handleApiRestrictions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send filtered restriction list in json response
-	if err = jsonApi(w, r, rl); err != nil {
+	if err = jsonApi(w, r, rl, false); err != nil {
 		log.Println(err)
 	}
 }

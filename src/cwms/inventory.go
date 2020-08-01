@@ -108,7 +108,7 @@ func handleExportInventoryJson(tm map[string]interface{}, wl WmsList, w http.Res
 
 // handleApiInventoryJson transfers the inventory via a restful api in a json format
 func handleApiInventoryJson(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
-	err := jsonApi(w, r, wl)
+	err := jsonApi(w, r, wl, true)
 	if err != nil {
 		log.Println(err)
 	}

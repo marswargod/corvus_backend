@@ -40,7 +40,7 @@ SELECT
   startTime,
   stopTime,
   items.sku AS sku,
-  json_extract(positions.json_position, "$.aisle") AS aisl e,
+  json_extract(positions.json_position, "$.aisle") AS aisle,
   json_extract(positions.json_position, "$.block") AS block,
   json_extract(positions.json_position, "$.slot") AS slot,
   items.discrepancy AS discrepancy
