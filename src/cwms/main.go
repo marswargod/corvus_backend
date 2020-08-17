@@ -139,7 +139,7 @@ func main() {
 	mux.HandleFunc("/api/schedule/", amw(handleApiQueue))
 	mux.HandleFunc("/api/custom_flights/", amw(handleApiCustomQueue))
 
-	// Listen and serve mux
+	// Listen and serve mux to port 8080
 	http.ListenAndServe(":8080", mux)
 }
 
