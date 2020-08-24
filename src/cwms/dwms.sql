@@ -22,7 +22,7 @@ CREATE INDEX idx_discrepany ON items (discrepancy);
 DROP TABLE IF EXISTS inventory;
 CREATE TABLE IF NOT EXISTS inventory (
   inventoryId INTEGER PRIMARY KEY AUTOINCREMENT,
-  startTime DATETIME, 
+  startTime DATETIME,
   stopTime DATETIME,
   itemId INTEGER REFERENCES items(itemId),
   positionId INTEGER REFERENCES positions(positionId)
@@ -34,23 +34,23 @@ CREATE TABLE IF NOT EXISTS inventory (
 
 DROP VIEW IF EXISTS v_inventory;
 CREATE VIEW v_inventory
-AS
-SELECT
-  inventoryId,
-  startTime,
-  stopTime,
-  items.sku AS sku,
-  json_extract(positions.json_position, "$.aisle") AS aisle,
-  json_extract(positions.json_position, "$.block") AS block,
-  json_extract(positions.json_position, "$.slot") AS slot,
-  items.discrepancy AS discrepancy
-FROM
-  inventory
-  LEFT JOIN positions USING(positionId)
-  LEFT JOIN items USING(itemId);
+  AS SELECT
+    inventoryId,
+    startTime,
+    stopTime,
+    items.sku AS sku,
+    json_extract(positions.json_position, "$.aisle") AS aisle,
+    json_extract(positions.json_position, "$.block") AS block,
+    json_extract(positions.json_position, "$.slot") AS slot,
+    json_extract(positions.json_position, "$.shelf") AS shelf,
+    items.discrepancy AS discrepancy
+  FROM
+    inventory
+    LEFT JOIN positions USING(positionId)
+    LEFT JOIN items USING(itemId);
 
-  DROP VIEW IF EXISTS v_aisleStats;
-  CREATE VIEW IF NOT EXISTS v_aisleStats
+DROP VIEW IF EXISTS v_aisleStats;
+CREATE VIEW IF NOT EXISTS v_aisleStats
   AS SELECT
     aisle,
     sum(case when discrepancy != "" then 1 else 0 end) as numberException,
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS regions (
   name string,
   frequency int
 );
-  
+
 DROP TABLE IF EXISTS regionPositions;
 CREATE TABLE IF NOT EXISTS regionPositions (
   rpId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,14 +78,14 @@ CREATE TABLE IF NOT EXISTS regionPositions (
 
 DROP VIEW IF EXISTS v_regionPosition;
 CREATE VIEW IF NOT EXISTS v_regionPosition
-AS
-SELECT
-  regionId AS regionId,
-  json_extract(positions.json_position, "$.aisle") AS aisle
-FROM 
-  regions
-  LEFT JOIN regionPositions USING(regionId)
-  LEFT JOIN positions USING(positionId);
+  AS
+  SELECT
+    regionId AS regionId,
+    json_extract(positions.json_position, "$.aisle") AS aisle
+  FROM
+    regions
+    LEFT JOIN regionPositions USING(regionId)
+    LEFT JOIN positions USING(positionId);
 
 
 DROP TABLE IF EXISTS events;
@@ -113,69 +113,64 @@ CREATE TABLE IF NOT EXISTS restrictions (
 
 DROP VIEW IF EXISTS v_restrictions;
 CREATE VIEW IF NOT EXISTS v_restrictions
-AS
-SELECT
-  restrictionId AS restrictionId,
-  startDate DATETIME,
-  stopDate  DATETIME,
-  json_extract(positions.json_position, "$.aisle") AS aisle
-FROM 
-  restrictions
-  LEFT JOIN regions USING(regionId)
-  LEFT JOIN regionPositions USING(regionId)
-  LEFT JOIN positions USING(positionId);
+  AS SELECT
+    restrictionId AS restrictionId,
+    startDate DATETIME,
+    stopDate  DATETIME,
+    json_extract(positions.json_position, "$.aisle") AS aisle
+  FROM
+    restrictions
+    LEFT JOIN regions USING(regionId)
+    LEFT JOIN regionPositions USING(regionId)
+    LEFT JOIN positions USING(positionId);
 
 DROP VIEW IF EXISTS v_schedule;
 CREATE VIEW IF NOT EXISTS v_schedule
-AS
-SELECT
-  entry AS entry,
-  queue AS queue,
-  regions.name AS region,
-  regions.frequency AS frequency,
-  restriction.name AS restriction,
-  restriction.startTime AS startTime,
-  restriction.stopTime AS stopTime,
-  restriction.periodicity AS periodicity,
-  json_extract(positions.json_position, "$.aisle") AS aisle,
-  json_extract(positions.json_position, "$.block") AS block,
-  json_extract(positions.json_position, "$.slot") AS slot
-FROM
-  events
-  LEFT JOIN regions USING(regionId)
-  LEFT JOIN regionPositions USING(regionId)
-  LEFT JOIN restrictions USING(regionId)
-  LEFT JOIN positions USING(positionId);
+  AS SELECT
+    entry AS entry,
+    queue AS queue,
+    regions.name AS region,
+    regions.frequency AS frequency,
+    restriction.name AS restriction,
+    restriction.startTime AS startTime,
+    restriction.stopTime AS stopTime,
+    restriction.periodicity AS periodicity,
+    json_extract(positions.json_position, "$.aisle") AS aisle,
+    json_extract(positions.json_position, "$.block") AS block,
+    json_extract(positions.json_position, "$.slot") AS slot
+  FROM
+    events
+    LEFT JOIN regions USING(regionId)
+    LEFT JOIN regionPositions USING(regionId)
+    LEFT JOIN restrictions USING(regionId)
+    LEFT JOIN positions USING(positionId);
 
-  DROP TABLE IF EXISTS flights;
-  CREATE TABLE IF NOT EXISTS flights (
-    flightId  INTEGER PRIMARY KEY AUTOINCREMENT,
-    time DATETIME
-  );
+DROP TABLE IF EXISTS flights;
+CREATE TABLE IF NOT EXISTS flights (
+  flightId  INTEGER PRIMARY KEY AUTOINCREMENT,
+  time DATETIME
+);
 
-  DROP TABLE IF EXISTS flightPositions;
-  CREATE TABLE IF NOT EXISTS flightPositions (
-    fpId  INTEGER PRIMARY KEY AUTOINCREMENT,
-    sku text,
-    occupancy text,
-    flightId INTEGER REFERENCES flights(flightId),
-    positionId INTEGER REFERENCES positions(positionId)
-  );
+DROP TABLE IF EXISTS flightPositions;
+CREATE TABLE IF NOT EXISTS flightPositions (
+  fpId  INTEGER PRIMARY KEY AUTOINCREMENT,
+  sku text,
+  occupancy text,
+  flightId INTEGER REFERENCES flights(flightId),
+  positionId INTEGER REFERENCES positions(positionId)
+);
 
 DROP VIEW IF EXISTS v_flightList;
 CREATE VIEW v_flightList
-AS
-SELECT
-  flightId AS flightId,
-  time(time) AS time,
-  flightPositions.sku AS sku,
-  flightPositions.occupancy AS occupancy,
-  json_extract(positions.json_position, "$.aisle") AS aisle,
-  json_extract(positions.json_position, "$.block") AS shelf,
-  json_extract(positions.json_position, "$.slot") AS slot
-FROM
-  flights
-  LEFT JOIN flightPositions USING(flightId)  
-  LEFT JOIN positions USING(positionId);
-
-  
+  AS SELECT
+    flightId AS flightId,
+    time(time) AS time,
+    flightPositions.sku AS sku,
+    flightPositions.occupancy AS occupancy,
+    json_extract(positions.json_position, "$.aisle") AS aisle,
+    json_extract(positions.json_position, "$.block") AS shelf,
+    json_extract(positions.json_position, "$.slot") AS slot
+  FROM
+    flights
+    LEFT JOIN flightPositions USING(flightId)
+    LEFT JOIN positions USING(positionId);
