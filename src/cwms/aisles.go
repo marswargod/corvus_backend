@@ -181,20 +181,29 @@ type aisleStats struct {
 	NumberOccupied  int    `db:"numberOccupied" json:"numberOccupied"`
 	NumberEmpty     int    `db:"numberEmpty" json:"numberEmpty"`
 	NumberException int    `db:"numberException" json:"numberException"`
-	NumberUnscanned int    `db:"numberUnscanned" json:"numberUnscanned"`
-	LastScanned     string `db:"lastScanned" json:"lastScanned"`
+//	NumberUnscanned int    `db:"numberUnscanned" json:"numberUnscanned"`
+//	LastScanned     string `db:"lastScanned" json:"lastScanned"`
 }
 
 type aisleStatsList []aisleStats
 
 func fetchAisleStats() (asl aisleStatsList, err error) {
-	as := aisleStats{Id: "1a", NumberOccupied: 10, NumberEmpty: 5, NumberException: 6, NumberUnscanned: 1, LastScanned: "2020-04-04T19:22:45.004Z"}
-	al := []string{"1a", "1b", "1c", "2a", "2b", "2c", "3a", "3b", "3c", "4a"}
-	for i := 0; i < 10; i++ {
-		as.Id = al[i]
-		as.NumberOccupied += i
-		as.NumberEmpty += i
-		as.NumberException += i
+	// Execute database query
+	var rows *sql.Rows
+	if rows, err = db.Query("select distinct aisle, numberException, numberEmpty, numberOccupied from v_aisleStats"); err != nil {
+		return
+	}
+	defer rows.Close()
+
+	var as aisleStats
+	// Process query results
+	for rows.Next() {
+		// Load query results into interface list via the pointers
+		if err = rows.Scan(StructForScan(&as)...); err != nil {
+			return
+		}
+
+		// append query results to flight list
 		asl = append(asl, as)
 	}
 	return
