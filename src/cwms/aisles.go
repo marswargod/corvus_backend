@@ -18,8 +18,10 @@ type Wms struct {
 	SKU         string `xml:"item>SKU" json:"sku"`
 	Discrepancy string `xml:"item>Discrepancy,omitempty" json:"discrepancy"`
 	Aisle       string `xml:"position>Aisle" json:"aisle"`
-	Shelf       string `xml:"position>Shelf" json:"shelf"`
+	Block       string `xml:"position>Block" json:"block"`
 	Slot        string `xml:"position>Slot" json:"slot"`
+	Shelf       string `xml:"position>Shelf" json:"shelf"`
+	Image       string `xml:"position>Image" json:"image"`
 }
 
 // WmsList is a slice of Wms
@@ -32,9 +34,9 @@ type WmsList []Wms
 //	is performed.
 func (wl WmsList) toSlice() (s [][]string) {
 	// Prepend the column headers
-	s = append(s, []string{"Id", "Start Time", "Stop Time", "SKU", "Aisle", "Shelf", "Slot", "Discrepancy"})
+	s = append(s, []string{"Id", "Start Time", "Stop Time", "SKU", "Aisle", "Block", "Slot", "Shelf", "Discrepancy", "Image"})
 	for _, v := range wl {
-		s = append(s, []string{strconv.Itoa(v.Id), v.StartTime, v.StopTime, v.SKU, v.Aisle, v.Shelf, v.Slot, v.Discrepancy})
+		s = append(s, []string{strconv.Itoa(v.Id), v.StartTime, v.StopTime, v.SKU, v.Aisle, v.Block, v.Slot, v.Shelf, v.Discrepancy, v.Image})
 	}
 	return
 }
@@ -53,7 +55,7 @@ func FetchInventory(af AisleFilter) (wl WmsList, err error) {
 	// Process database query results
 	var record Wms
 	for rows.Next() {
-		err = rows.Scan(&record.Id, &record.StartTime, &record.StopTime, &record.SKU, &record.Aisle, &record.Shelf, &record.Slot, &record.Discrepancy)
+		err = rows.Scan(&record.Id, &record.StartTime, &record.StopTime, &record.SKU, &record.Aisle, &record.Block, &record.Slot, &record.Shelf, &record.Discrepancy, &record.Image)
 		if err != nil {
 			return
 		}
@@ -95,7 +97,7 @@ type AisleFilter struct {
 func (af AisleFilter) toSqlStmt() (sqlstmt string) {
 	var sel, order string
 	var where []string
-	sel = `select inventoryId, startTime, stopTime, sku, aisle, block, slot, discrepancy from v_inventory `
+	sel = `select inventoryId, startTime, stopTime, sku, aisle, block, slot, shelf, discrepancy, imageUrl from v_inventory `
 	if af.Aisle != "" {
 		where = append(where, fmt.Sprintf(`aisle ='%s'`, af.Aisle))
 	}
@@ -181,8 +183,8 @@ type aisleStats struct {
 	NumberOccupied  int    `db:"numberOccupied" json:"numberOccupied"`
 	NumberEmpty     int    `db:"numberEmpty" json:"numberEmpty"`
 	NumberException int    `db:"numberException" json:"numberException"`
-//	NumberUnscanned int    `db:"numberUnscanned" json:"numberUnscanned"`
-//	LastScanned     string `db:"lastScanned" json:"lastScanned"`
+	NumberUnscanned int    `db:"numberUnscanned" json:"numberUnscanned"`
+	LastScanned     string `db:"lastScanned" json:"lastScanned"`
 }
 
 type aisleStatsList []aisleStats
@@ -190,7 +192,7 @@ type aisleStatsList []aisleStats
 func fetchAisleStats() (asl aisleStatsList, err error) {
 	// Execute database query
 	var rows *sql.Rows
-	if rows, err = db.Query("select distinct aisle, numberException, numberEmpty, numberOccupied from v_aisleStats"); err != nil {
+	if rows, err = db.Query("select distinct aisle, numberException, numberEmpty, numberOccupied, numberUnscanned, lastScanned from v_aisleStats"); err != nil {
 		return
 	}
 	defer rows.Close()
