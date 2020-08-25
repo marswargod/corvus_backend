@@ -105,7 +105,7 @@ func main() {
 	var err error
 
 	// Open global database
-	db, err = sql.Open("sqlite3", `.\wms3.db`)
+	db, err = sql.Open("sqlite3", `./wms3.db`)
 	if err != nil {
 		log.Println(err)
 	}
@@ -115,7 +115,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Setup file server handler
-	files := http.FileServer(LocalFileSystem{http.Dir(`.\static\`)})
+	files := http.FileServer(LocalFileSystem{http.Dir(`./static/`)})
 	mux.Handle("/static/", http.StripPrefix("/static/", files))
 
 	// Setup http handlers
