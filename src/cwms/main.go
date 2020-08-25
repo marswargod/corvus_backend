@@ -139,8 +139,8 @@ func main() {
 	mux.HandleFunc("/api/schedule/", amw(handleApiQueue))
 	mux.HandleFunc("/api/custom_flights/", amw(handleApiCustomQueue))
 
-	// Listen and serve mux to port 8080
-	http.ListenAndServe(":8080", mux)
+	// Listen and serve mux to port 8081
+	http.ListenAndServe(":8081", mux)
 }
 
 // jsonApi implements a simple restful api to export data in a json format
@@ -153,7 +153,7 @@ func jsonApi(w http.ResponseWriter, r *http.Request, data interface{}, implement
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
 	// set appropriate response code based on client request method
-	if implemented {
+	if true {
 		switch r.Method {
 		case http.MethodGet:
 			w.WriteHeader(http.StatusOK)
