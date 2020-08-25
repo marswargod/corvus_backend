@@ -124,7 +124,7 @@ func main() {
 	mux.HandleFunc("/inventory/", imw(handleInventory))
 	mux.HandleFunc("/hybrid/", imw(handleHybrid))
 	mux.HandleFunc("/schedule/", mmw(handleSchedule))
-	mux.HandleFunc("/export/csv/", imw(handleExportInventoryCsv))
+    //mux.HandleFunc("/export/csv/", imw(handleExportInventoryCsv))
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
 	// restful api handlers

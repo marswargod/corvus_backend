@@ -4,42 +4,65 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 	"net/http"
-	"strconv"
 	"strings"
+	"encoding/json"
 )
 
 // Wms is Warehouse Management System inventory database record structure that matches the fields in the v_inventory view
 // 	xml reflection tags are included for xml marshalling
 type Wms struct {
 	Id          int    `xml:"id,attr" json:"id"`
-	StartTime   string `xml:"time>start" json:"startTime"`
-	StopTime    string `xml:"time>stop" json:"stopTime"`
-	SKU         string `xml:"item>SKU" json:"sku"`
-	Discrepancy string `xml:"item>Discrepancy,omitempty" json:"discrepancy"`
+	StartTime   time.Time `xml:"time>start" json:"startTime"`
+	StopTime    time.Time `xml:"time>stop" json:"stopTime"`
+	SKU         NullString `xml:"item>SKU" json:"sku"`
+	Discrepancy NullString `xml:"item>Discrepancy,omitempty" json:"discrepancy"`
 	Aisle       string `xml:"position>Aisle" json:"aisle"`
 	Block       string `xml:"position>Block" json:"block"`
 	Slot        string `xml:"position>Slot" json:"slot"`
 	Shelf       string `xml:"position>Shelf" json:"shelf"`
-	Image       string `xml:"position>Image" json:"image"`
+	Image       NullString `xml:"position>Image" json:"image"`
+}
+
+// NullString is an alias for sql.NullString data type
+type NullString struct {
+	sql.NullString
+}
+
+
+// MarshalJSON for NullString
+func (ns *NullString) MarshalJSON() ([]byte, error) {
+	if !ns.Valid {
+		return []byte("\"\""), nil //TODO this is dumb, should be []byte("null")
+	}
+	return json.Marshal(ns.String)
+}
+
+// UnmarshalJSON for NullString
+func (ns *NullString) UnmarshalJSON(b []byte) error {
+	err := json.Unmarshal(b, &ns.String)
+	ns.Valid = (err == nil)
+	return err
 }
 
 // WmsList is a slice of Wms
 type WmsList []Wms
 
+// TODO bring this back for csv exporting
 // toSlice converts a WmsList to a [][]string for use when generating csv output
 //	Hardcoded alert!! toSlice will need to be updated if v_inventory is refactored.
 //	There is a more generic approach: the rows.Columns method can be used to get the column names from the query.
 //	Of course, the column names would need to be carried in page controls or a global variable perhaps when the query
 //	is performed.
-func (wl WmsList) toSlice() (s [][]string) {
-	// Prepend the column headers
-	s = append(s, []string{"Id", "Start Time", "Stop Time", "SKU", "Aisle", "Block", "Slot", "Shelf", "Discrepancy", "Image"})
-	for _, v := range wl {
-		s = append(s, []string{strconv.Itoa(v.Id), v.StartTime, v.StopTime, v.SKU, v.Aisle, v.Block, v.Slot, v.Shelf, v.Discrepancy, v.Image})
-	}
-	return
-}
+// func (wl WmsList) toSlice() (s [][]string) {
+// 	// Prepend the column headers
+// 	s = append(s, []string{"Id", "Start Time", "Stop Time", "SKU", "Aisle", "Block", "Slot", "Shelf", "Discrepancy", "Image"})
+// 	for _, v := range wl {
+// 		s = append(s, []string{strconv.Itoa(v.Id), v.StartTime, v.StopTime, v.SKU, v.Aisle, v.Block, v.Slot, v.Shelf, v.Discrepancy, v.Image})
+// 	}
+// 	return
+// }
 
 // FetchInventory performs a query on v_inventory and returns the results in a WmsList.
 func FetchInventory(af AisleFilter) (wl WmsList, err error) {

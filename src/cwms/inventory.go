@@ -90,13 +90,13 @@ func handleHybrid(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, 
 	}
 }
 
-// handleExportInventoryCsv downloads the inventory to a CSV file
-func handleExportInventoryCsv(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
-	err := csvDownload(w, "inventory.csv", wl.toSlice())
-	if err != nil {
-		log.Println(err)
-	}
-}
+// // handleExportInventoryCsv downloads the inventory to a CSV file
+// func handleExportInventoryCsv(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
+// 	err := csvDownload(w, "inventory.csv", wl.toSlice())
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
+// }
 
 // handleExportInventory downloads the inventory to a JSON file
 func handleExportInventoryJson(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {

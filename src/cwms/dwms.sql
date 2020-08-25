@@ -79,8 +79,8 @@ CREATE VIEW IF NOT EXISTS v_aisleStats
     aisle,
     sum(case when discrepancy != "" then 1 else 0 end) as numberException,
     sum(case when sku = "empty" then 1 else 0 end) as numberEmpty,
-    sum(case when sku != "empty" and sku != "unscanned" then 1 else 0 end) as numberOccupied,
-    sum(case when sku = "unscanned" then 1 else 0 end) as numberUnscanned,
+    sum(case when sku != "empty" and sku is not null then 1 else 0 end) as numberOccupied,
+    sum(case when sku is null then 1 else 0 end) as numberUnscanned,
     max(stopTime) as lastScanned -- TODO: might not be right
   FROM
     v_inventory
