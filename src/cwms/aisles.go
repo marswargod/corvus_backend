@@ -13,17 +13,17 @@ import (
 // Wms is Warehouse Management System inventory database record structure that matches the fields in the v_inventory view
 // 	xml reflection tags are included for xml marshalling
 type Wms struct {
-	Id          int    `xml:"id,attr" json:"id"`
-	StartTime   time.Time `xml:"time>start" json:"startTime"`
-	StopTime    time.Time `xml:"time>stop" json:"stopTime"`
-	SKU         NullString `xml:"item>SKU" json:"sku"`
-	Discrepancy NullString `xml:"item>Discrepancy,omitempty" json:"discrepancy"`
-	Aisle       string `xml:"position>Aisle" json:"aisle"`
-	Block       string `xml:"position>Block" json:"block"`
-	Slot        string `xml:"position>Slot" json:"slot"`
-	Shelf       string `xml:"position>Shelf" json:"shelf"`
-	DisplayName       string `xml:"position>DisplayName" json:"displayname"`
-	Image       NullString `xml:"position>Image" json:"image"`
+	Id          int    `xml:"id,attr" json:"id" csv:"-"`
+	StartTime   time.Time `xml:"time>start" json:"startTime"  csv:"-"`
+	StopTime    time.Time `xml:"time>stop" json:"stopTime"  csv:"-"`
+	SKU         NullString `xml:"item>SKU" json:"sku"  csv:"sku"`
+	Discrepancy NullString `xml:"item>Discrepancy,omitempty" json:"discrepancy"  csv:"-"`
+	Aisle       string `xml:"position>Aisle" json:"aisle"  csv:"aisle"`
+	Block       string `xml:"position>Block" json:"block"  csv:"block"`
+	Slot        string `xml:"position>Slot" json:"slot"  csv:"slot"`
+	Shelf       string `xml:"position>Shelf" json:"shelf"  csv:"-"`
+	DisplayName       string `xml:"position>DisplayName" json:"displayname"  csv:"display_name"`
+	Image       NullString `xml:"position>Image" json:"image"  csv:"image_url"`
 }
 
 // NullString is an alias for sql.NullString data type
@@ -45,6 +45,15 @@ func (ns *NullString) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, &ns.String)
 	ns.Valid = (err == nil)
 	return err
+}
+
+
+// MarshalCSV for NullString
+func (ns *NullString) MarshalCSV() ([]byte, error) {
+	if !ns.Valid {
+		return []byte(""), nil //TODO this is dumb, should be []byte("null")
+	}
+	return []byte(ns.String), nil
 }
 
 // WmsList is a slice of Wms
