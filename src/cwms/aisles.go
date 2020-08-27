@@ -22,6 +22,7 @@ type Wms struct {
 	Block       string `xml:"position>Block" json:"block"`
 	Slot        string `xml:"position>Slot" json:"slot"`
 	Shelf       string `xml:"position>Shelf" json:"shelf"`
+	DisplayName       string `xml:"position>DisplayName" json:"displayname"`
 	Image       NullString `xml:"position>Image" json:"image"`
 }
 
@@ -78,7 +79,7 @@ func FetchInventory(af AisleFilter) (wl WmsList, err error) {
 	// Process database query results
 	var record Wms
 	for rows.Next() {
-		err = rows.Scan(&record.Id, &record.StartTime, &record.StopTime, &record.SKU, &record.Aisle, &record.Block, &record.Slot, &record.Shelf, &record.Discrepancy, &record.Image)
+		err = rows.Scan(&record.Id, &record.StartTime, &record.StopTime, &record.SKU, &record.Aisle, &record.Block, &record.Slot, &record.Shelf, &record.DisplayName, &record.Discrepancy, &record.Image)
 		if err != nil {
 			return
 		}
@@ -120,7 +121,7 @@ type AisleFilter struct {
 func (af AisleFilter) toSqlStmt() (sqlstmt string) {
 	var sel, order string
 	var where []string
-	sel = `select inventoryId, startTime, stopTime, sku, aisle, block, slot, shelf, discrepancy, imageUrl from v_inventory `
+	sel = `select inventoryId, startTime, stopTime, sku, aisle, block, slot, shelf, displayName, discrepancy, imageUrl from v_inventory `
 	if af.Aisle != "" {
 		where = append(where, fmt.Sprintf(`aisle ='%s'`, af.Aisle))
 	}

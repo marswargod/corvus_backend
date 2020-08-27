@@ -66,6 +66,7 @@ CREATE VIEW v_inventory
     json_extract(positions.json_position, "$.block") AS block,
     json_extract(positions.json_position, "$.slot") AS slot,
     json_extract(positions.json_position, "$.shelf") AS shelf,
+    json_extract(positions.json_position, "$.displayname") AS displayName,
     items.discrepancy AS discrepancy,
     images.imageUrl AS imageUrl
   FROM
