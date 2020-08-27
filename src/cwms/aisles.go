@@ -59,21 +59,6 @@ func (ns *NullString) MarshalCSV() ([]byte, error) {
 // WmsList is a slice of Wms
 type WmsList []Wms
 
-// TODO bring this back for csv exporting
-// toSlice converts a WmsList to a [][]string for use when generating csv output
-//	Hardcoded alert!! toSlice will need to be updated if v_inventory is refactored.
-//	There is a more generic approach: the rows.Columns method can be used to get the column names from the query.
-//	Of course, the column names would need to be carried in page controls or a global variable perhaps when the query
-//	is performed.
-// func (wl WmsList) toSlice() (s [][]string) {
-// 	// Prepend the column headers
-// 	s = append(s, []string{"Id", "Start Time", "Stop Time", "SKU", "Aisle", "Block", "Slot", "Shelf", "Discrepancy", "Image"})
-// 	for _, v := range wl {
-// 		s = append(s, []string{strconv.Itoa(v.Id), v.StartTime, v.StopTime, v.SKU, v.Aisle, v.Block, v.Slot, v.Shelf, v.Discrepancy, v.Image})
-// 	}
-// 	return
-// }
-
 // FetchInventory performs a query on v_inventory and returns the results in a WmsList.
 func FetchInventory(af AisleFilter) (wl WmsList, err error) {
 	// Execute database query

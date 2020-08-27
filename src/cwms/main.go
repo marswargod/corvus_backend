@@ -153,21 +153,17 @@ func jsonApi(w http.ResponseWriter, r *http.Request, data interface{}, implement
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
 	// set appropriate response code based on client request method
-	if true {
-		switch r.Method {
-		case http.MethodGet:
-			w.WriteHeader(http.StatusOK)
-		case http.MethodDelete:
-			w.WriteHeader(http.StatusAccepted)
-		case http.MethodPost:
-			w.WriteHeader(http.StatusCreated)
-		case http.MethodPatch:
-			w.WriteHeader(http.StatusCreated)
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	} else {
-		w.WriteHeader(http.StatusNotImplemented)
+	switch r.Method {
+	case http.MethodGet:
+		w.WriteHeader(http.StatusOK)
+	case http.MethodDelete:
+		w.WriteHeader(http.StatusAccepted)
+	case http.MethodPost:
+		w.WriteHeader(http.StatusCreated)
+	case http.MethodPatch:
+		w.WriteHeader(http.StatusCreated)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 	if err = json.NewEncoder(w).Encode(data); err != nil {
 		log.Println(err)
