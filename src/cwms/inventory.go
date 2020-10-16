@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"github.com/jszwec/csvutil"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -92,9 +93,13 @@ func handleHybrid(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, 
 
 // handleExportInventoryCsv downloads the inventory to a CSV file
 func handleExportInventoryCsv(tm map[string]interface{}, wl WmsList, w http.ResponseWriter, r *http.Request) {
-	err := csvDownload(w, "inventory.csv", wl.toSlice())
+	csvContent, err := csvutil.Marshal(wl)
 	if err != nil {
 		log.Println(err)
+	}
+	err2 := csvDownload(w, "inventory.csv", string(csvContent))
+	if err2 != nil {
+		log.Println(err2)
 	}
 }
 
@@ -123,17 +128,10 @@ func handleExportInventoryXml(tm map[string]interface{}, wl WmsList, w http.Resp
 }
 
 // csvDownload downloads the inventory to a csv file via the web browser
-func csvDownload(w http.ResponseWriter, filename string, data [][]string) (err error) {
+func csvDownload(w http.ResponseWriter, filename string, data string) (err error) {
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s", filename))
-	writer := csv.NewWriter(w)
-	defer writer.Flush()
-
-	for _, value := range data {
-		if err = writer.Write(value); err != nil {
-			return
-		}
-	}
+	w.Write([]byte(data))
 	return
 }
 

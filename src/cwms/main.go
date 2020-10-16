@@ -105,7 +105,7 @@ func main() {
 	var err error
 
 	// Open global database
-	db, err = sql.Open("sqlite3", `.\wms3.db`)
+	db, err = sql.Open("sqlite3", `./wms3.db`)
 	if err != nil {
 		log.Println(err)
 	}
@@ -115,7 +115,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Setup file server handler
-	files := http.FileServer(LocalFileSystem{http.Dir(`.\static\`)})
+	files := http.FileServer(LocalFileSystem{http.Dir(`./static/`)})
 	mux.Handle("/static/", http.StripPrefix("/static/", files))
 
 	// Setup http handlers
@@ -124,7 +124,7 @@ func main() {
 	mux.HandleFunc("/inventory/", imw(handleInventory))
 	mux.HandleFunc("/hybrid/", imw(handleHybrid))
 	mux.HandleFunc("/schedule/", mmw(handleSchedule))
-	mux.HandleFunc("/export/csv/", imw(handleExportInventoryCsv))
+    mux.HandleFunc("/export/csv/", imw(handleExportInventoryCsv))
 	mux.HandleFunc("/export/json/", imw(handleExportInventoryJson))
 	mux.HandleFunc("/export/xml/", imw(handleExportInventoryXml))
 	// restful api handlers
@@ -139,8 +139,8 @@ func main() {
 	mux.HandleFunc("/api/schedule/", amw(handleApiQueue))
 	mux.HandleFunc("/api/custom_flights/", amw(handleApiCustomQueue))
 
-	// Listen and serve mux to port 8080
-	http.ListenAndServe(":8080", mux)
+	// Listen and serve mux to port 8081
+	http.ListenAndServe(":8081", mux)
 }
 
 // jsonApi implements a simple restful api to export data in a json format
@@ -153,21 +153,17 @@ func jsonApi(w http.ResponseWriter, r *http.Request, data interface{}, implement
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
 	// set appropriate response code based on client request method
-	if implemented {
-		switch r.Method {
-		case http.MethodGet:
-			w.WriteHeader(http.StatusOK)
-		case http.MethodDelete:
-			w.WriteHeader(http.StatusAccepted)
-		case http.MethodPost:
-			w.WriteHeader(http.StatusCreated)
-		case http.MethodPatch:
-			w.WriteHeader(http.StatusCreated)
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	} else {
-		w.WriteHeader(http.StatusNotImplemented)
+	switch r.Method {
+	case http.MethodGet:
+		w.WriteHeader(http.StatusOK)
+	case http.MethodDelete:
+		w.WriteHeader(http.StatusAccepted)
+	case http.MethodPost:
+		w.WriteHeader(http.StatusCreated)
+	case http.MethodPatch:
+		w.WriteHeader(http.StatusCreated)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 	if err = json.NewEncoder(w).Encode(data); err != nil {
 		log.Println(err)
